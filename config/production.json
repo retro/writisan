@@ -1,6 +1,6 @@
 {
   "host": "app.writisan.com",
-  "port": 8123,
+  "port": 80,
   "mongodb": "MONGODB_URI",
   "public": "../public/",
   "auth": {
