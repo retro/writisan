@@ -44,6 +44,8 @@ app.get('/app/:bucketId', function(req, res){
   res.send('BUCKET ID:' + req.params.bucketId);
 });
 
+app.enable("trust proxy");
+
 app.use(compress())
   .options('*', cors())
   .use(cors())
