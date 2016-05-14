@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">    
+  </head>
+  <body>
+    <div id="app"></div>
+    <script>
+      var CLOSURE_UNCOMPILED_DEFINES = null;
+    </script>
+    <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+    <script type="text/javascript" src="//npmcdn.com/feathers-client@^1.0.0/dist/feathers.js"></script>
+    <script type="text/javascript">
+      var F = feathers()
+      .configure(feathers.rest('http://localhost:3030').jquery(jQuery))
+      .configure(feathers.hooks())
+      .configure(feathers.authentication({ type: 'token', storage: window.localStorage }));
+    </script>
+    <script src="auth.js"></script>
+    <script type="text/javascript" src="http://localhost:3449/js/compiled/out/goog/base.js"></script>
+    <script type="text/javascript" src="http://localhost:3449/js/compiled/out/cljs_deps.js"></script>
+    <script>
+      if (typeof goog !== 'undefined') {
+        goog.require("figwheel.connect");
+        goog.require("writisan.core");
+      }
+    </script>
+  </body>
+</html>
