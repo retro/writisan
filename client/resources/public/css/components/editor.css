@@ -1,0 +1,33 @@
+.editor-component {
+  padding-top: 30px;
+}
+.editor-component .content {
+  width: 61.8%;
+  margin: 0 auto;
+}
+.editor-component .toolbar {
+  position: fixed;
+  height: 50px;
+  width: 100%;
+  top: 0;
+  left: 0;
+  background: #222;
+  z-index: 1000;
+  color: #999;
+  line-height: 50px;
+  font-size: 18px;
+}
+.editor-component .toolbar button {
+  float: right;
+  height: 30px;
+  color: white;
+  border-radius: 3px;
+  background: #f30;
+  border: none;
+  font-size: 14px;
+  line-height: 30px;
+  margin-top: 10px;
+  cursor: pointer;
+  padding: 0 20px;
+  outline: none;
+}

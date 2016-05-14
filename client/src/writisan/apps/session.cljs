@@ -3,7 +3,7 @@
             [writisan.controllers.login :as login]
             [writisan.controllers.logout :as logout]
             [writisan.components.session :as session-c]
-            [writisan.subscriptions :as subs]
+            [writisan.session-subscriptions :as subs]
             [writisan.apps.main :as main]))
 
 (def app {:routes ["session/:session-action"]

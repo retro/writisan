@@ -1,4 +1,4 @@
-(ns writisan.subscriptions
+(ns writisan.session-subscriptions
   (:require-macros [reagent.ratom :refer [reaction]]))
 
 (defn current-user [app-db]
@@ -7,7 +7,6 @@
    (get-in @app-db [:kv :current-user])))
 
 (defn main-app [app-db]
-  ;; Returns the main application. Called by the `session` app
   (reaction
    (get-in @app-db [:kv :main-app])))
 

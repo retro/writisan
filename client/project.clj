@@ -8,14 +8,21 @@
   
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.8.51"]
+                 [cljs-ajax "0.5.3"]
+                 [cljsjs/moment "2.10.6-3"]
+                 [cljsjs/codemirror "5.11.0-1"]
                  [org.clojure/core.async "0.2.374"
                   :exclusions [org.clojure/tools.reader]]
                  [keechma "0.1.0-SNAPSHOT"]]
   
   :plugins [[lein-figwheel "0.5.3-1"]
+            [lein-less "1.7.5"]
             [lein-cljsbuild "1.1.3" :exclusions [[org.clojure/clojure]]]]
 
   :source-paths ["src"]
+  
+  :less {:source-paths ["src/less"]
+         :target-path "resources/public/css"}
 
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
 

@@ -18,12 +18,11 @@
           login-status-sub (ui/subscription ctx :login-status)
           main-app @main-app-sub
           login-status @login-status-sub]
-      [:div.container>div.row>div.col-xs-12>div.jumbotron
-       (case login-status
-         :loading [:div "LOADING"]
-         (if main-app
-           (render-main-app main-app)
-           (render-login ctx)))])))
+      (case login-status
+        :loading [:div "LOADING"]
+        (if main-app
+          (render-main-app main-app)
+          (render-login ctx))))))
 
 (def component (ui/constructor
                 {:renderer render

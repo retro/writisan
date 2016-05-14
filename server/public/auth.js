@@ -3,12 +3,18 @@ var AUTH = function(successCb, errorCb) {
   var title = "Google Login";
   var url = "/auth/google";
   var oauthWindow = window.open(url, title, windowPropsStr);
-  var sweeper = window.setInterval(function() {
-    if (oauthWindow.closed) {
-      clearInterval(sweeper);
-      F.authenticate().then(successCb, errorCb);
-    }
-  }, 100);
+  
+  if(!oauthWindow) {
+    alert('Please disable your popup blocker');
+  } else {
+
+    var sweeper = window.setInterval(function() {
+      if (oauthWindow.closed) {
+        clearInterval(sweeper);
+        F.authenticate().then(successCb, errorCb);
+      }
+    }, 100);
+  }
 }
 
 var setToken = function(token) {
