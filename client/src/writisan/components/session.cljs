@@ -4,9 +4,12 @@
 (defn render-login
   "Renders the login screen"
   [ctx]
-  [:button.btn.btn-primary
+  [:div.login-screen
+   [:h1 "Welcome to Writisan."]
+   [:p "Login with your Google account to start"]
+   [:button
     {:on-click #(ui/send-command ctx :login)}
-    "Login"])
+    "Login"]])
 
 (defn render-main-app
   [main-app]
@@ -19,7 +22,7 @@
           main-app @main-app-sub
           login-status @login-status-sub]
       (case login-status
-        :loading [:div "LOADING"]
+        :loading [:div]
         (if main-app
           (render-main-app main-app)
           (render-login ctx))))))

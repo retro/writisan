@@ -20,8 +20,7 @@
 
 (defn post-users [app-db-atom]
   (reaction
-   (let [users (edb/get-collection @app-db-atom :post-users :list)
-         _ (.log js/console (clj->js users))]
+   (let [users (edb/get-collection @app-db-atom :post-users :list)]
      (reduce (fn [acc user] (assoc acc (:_id user) user)) {} users))))
 
 (def subscriptions

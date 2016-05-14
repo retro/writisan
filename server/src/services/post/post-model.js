@@ -9,13 +9,14 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const postSchema = new Schema({
-  bucketId: Schema.Types.ObjectId,
+  _id: String,
   text: { type: String, required: true },
   parts: [String],
   accessedBy: [Schema.Types.ObjectId],
   createdAt: { type: Date, 'default': Date.now },
   updatedAt: { type: Date, 'default': Date.now }
 });
+
 
 const postModel = mongoose.model('post', postSchema);
 

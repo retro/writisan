@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="/app.css" rel="stylesheet" type="text/css">
+    <link href="http://localhost:3449/css/app.css" rel="stylesheet" type="text/css">
     <title>Writisan</title>
     <script src="https://use.fontawesome.com/6d1dc6162a.js"></script>
   </head>
@@ -18,12 +18,18 @@
     <script type="text/javascript">
       var F = feathers()
       //.configure(feathers.rest('http://localhost:3030').jquery(jQuery))
-        .configure(feathers.hooks())
-        .configure(feathers.socketio(io('https://app.writisan.com')))
-        .configure(feathers.authentication({ type: 'token', storage: window.localStorage }));
+      .configure(feathers.hooks())
+      .configure(feathers.socketio(io('http://localhost:3030')))
+      .configure(feathers.authentication({ type: 'token', storage: window.localStorage }));
     </script>
     <script src="auth.js"></script>
-    <script type="text/javascript" src="/writisan.js"></script>
-
+    <script type="text/javascript" src="http://localhost:3449/js/compiled/out/goog/base.js"></script>
+    <script type="text/javascript" src="http://localhost:3449/js/compiled/out/cljs_deps.js"></script>
+    <script>
+      if (typeof goog !== 'undefined') {
+        goog.require("figwheel.connect");
+        goog.require("writisan.core");
+      }
+    </script>
   </body>
 </html>

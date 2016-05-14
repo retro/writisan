@@ -9,7 +9,6 @@
 
 (defn success-processor [success-cb data]
   (let [converted (js->clj data :keywordize-keys true)]
-    (.log js/console converted)
     (success-cb converted)))
 
 (defn error-cb [e]
@@ -28,7 +27,6 @@
    error-cb))
 
 (defn find-items [service params success-cb]
-  (.log js/console params)
   (.then
    (.find service #js{:query params})
    (partial success-processor success-cb)

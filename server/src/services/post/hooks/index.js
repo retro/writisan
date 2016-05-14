@@ -4,7 +4,7 @@ const globalHooks = require('../../../hooks');
 const hooks = require('feathers-hooks');
 const auth = require('feathers-authentication').hooks;
 const Remarkable = require('remarkable');
-const PostModel = require('../post-model.js')
+const PostModel = require('../post-model.js');
 
 const SPLITTER = '------<CUT-HERE>------';
 
@@ -49,9 +49,11 @@ const associateCurrentUser = (req) => {
         PostModel.findByIdAndUpdate(
           req.id,
           {$push: {accessedBy: userId}},
-          {safe: true, upsert: true, new: true}).then(resolve, reject);
+          {safe: true, upsert: true, new: true}).then(() => {
+            resolve(req);
+          }, reject);
       } else {
-        resolve()
+        resolve(req);
       }
     }, reject);
   });
@@ -69,7 +71,9 @@ exports.before = {
   ],
   create: [
     function(req) {
-      console.log( markdownRenderer.render(req.data.text))
+      console.log('REQ', arguments)
+      req.data._id = require('crypto').randomBytes(32).toString('hex');
+      req.data.accessedBy = [req.params.user._id];
       req.data.parts = markdownRenderer.render(req.data.text).split(SPLITTER);
     }
 ],

@@ -1,5 +1,6 @@
 (ns writisan.core
   (:require [keechma.app-state :as app-state]
+            [writisan.apps.main :as main]
             [writisan.apps.session :as session]))
 
 (enable-console-print!)

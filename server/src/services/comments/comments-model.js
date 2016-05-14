@@ -9,7 +9,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const commentsSchema = new Schema({
-  postId: Schema.Types.ObjectId,
+  postId: String,
   postedById: Schema.Types.ObjectId,
   text: { type: String, required: true },
   idx: Number,

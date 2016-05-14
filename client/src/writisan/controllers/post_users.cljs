@@ -1,8 +1,9 @@
 (ns writisan.controllers.post-users
- (:require [writisan.services :refer [post-users-service find-items]]
+ (:require [writisan.services :refer [post-users-service comments-service find-items]]
            [keechma.controller :as controller]
            [clojure.string :as string]
-           [writisan.edb :as edb]) )
+           [writisan.edb :as edb]
+           [cljs.core.async :as async :refer [put!]]))
 
 (defn load-post-users [app-db-atom current-post-id]
   (let [app-db @app-db-atom]
@@ -20,5 +21,8 @@
     (edb/insert-collection app-db :post-users :list []))
   (handler [this app-db-atom in-chan _]
     (let []
+      (.on comments-service "created" 
+           (fn [] 
+             (controller/execute this :load (get-in this [:route-params :data :id]))))
       (controller/dispatcher app-db-atom in-chan
                              {:load load-post-users}))))

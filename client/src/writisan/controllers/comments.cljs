@@ -15,10 +15,7 @@
            :idx current-idx
            :postId post-id}
        (fn [item]
-         (reset! app-db-atom
-                 (-> @app-db-atom
-                     (assoc-in [:kv :current-comment-form-idx] nil)
-                     (edb/append-collection :comments :list [item]))))))))
+         (swap! app-db-atom assoc-in [:kv :current-comment-form-idx] nil))))))
 
 (defn load-comments [app-db-atom current-post-id]
   (let [app-db @app-db-atom]

@@ -9,12 +9,13 @@
     (let [post-users-sub (ui/subscription ctx :post-users)
           post-users @post-users-sub
           user (get post-users (:postedById comment))]
-      [:div.comment-component
-       [:div.author
-        [:img {:src (:image user)}]
-        (str (:name user) " on " (format-time (:createdAt comment)))]
-       [:div.body
-        (:text comment)]])))
+      (when user
+        [:div.comment-component
+         [:div.author
+          [:img {:src (:image user)}]
+          (str (:name user) " on " (format-time (:createdAt comment)))]
+         [:div.body
+          (:text comment)]]))))
 
 (def component
   (ui/constructor {:renderer render
