@@ -4,6 +4,7 @@ const globalHooks = require('../../../hooks');
 const hooks = require('feathers-hooks');
 const auth = require('feathers-authentication').hooks;
 const Remarkable = require('remarkable');
+const PostModel = require('../post-model.js')
 
 const SPLITTER = '------<CUT-HERE>------';
 
@@ -37,6 +38,24 @@ const markdownRenderer = (function() {
   return md;
 })();
 
+const associateCurrentUser = (req) => {
+  let userId = req.params.user._id;
+  return new Promise((resolve, reject) => {
+    PostModel.findOne({
+      _id: req.id,
+      accessedBy: {$elemMatch: {$eq: userId}}
+    }).then((doc) => {
+      if (!doc) {
+        PostModel.findByIdAndUpdate(
+          req.id,
+          {$push: {accessedBy: userId}},
+          {safe: true, upsert: true, new: true}).then(resolve, reject);
+      } else {
+        resolve()
+      }
+    }, reject);
+  });
+}
 
 exports.before = {
   all: [
@@ -44,17 +63,19 @@ exports.before = {
     auth.populateUser(),
     auth.restrictToAuthenticated()
   ],
-  find: [],
-  get: [],
+  find: [hooks.disable()],
+  get: [
+    associateCurrentUser
+  ],
   create: [
     function(req) {
       console.log( markdownRenderer.render(req.data.text))
       req.data.parts = markdownRenderer.render(req.data.text).split(SPLITTER);
     }
 ],
-  update: [],
-  patch: [],
-  remove: []
+  update: [hooks.disable()],
+  patch: [hooks.disable()],
+  remove: [hooks.disable()]
 };
 
 exports.after = {

@@ -9,13 +9,11 @@
        [:div.main
         (case page
           "editor" [(ui/component ctx :editor)]
-          "comments" [:div.feedback-component 
-                      [:div.post-block "aaa"]
-                      [:div.comments-block "bbb"]]
+          "comments" [(ui/component ctx :feedback)]
           [:div "Page doesn't exist"])]])))
 
 (def component (ui/constructor
                 {:renderer render
-                 :component-deps [:editor]
+                 :component-deps [:editor :feedback]
                  :subscription-deps [:page]}))
 

@@ -8,6 +8,10 @@
             (fn [item]
               (reset! app-db-atom (edb/insert-named-item @app-db-atom :posts :current item)))))
 
+(defn open-comment-form [app-db-atom idx]
+  (let [current-idx (get-in @app-db-atom [:kv :current-comment-form-idx])
+        new-idx (if (= idx current-idx) nil idx)]
+    (swap! app-db-atom assoc-in [:kv :current-comment-form-idx] new-idx)))
 
 (defrecord Controller []
   controller/IController
@@ -23,5 +27,7 @@
           app-db))))
   (handler [this app-db-atom in-chan _]
     (controller/dispatcher app-db-atom in-chan
-     {:load-post load-post})))
+                           {:load-post load-post
+                            :open-comment-form open-comment-form
+                           })))
 

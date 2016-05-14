@@ -1,5 +1,12 @@
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,600);
 
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
 
 html {
     height: 100%;
@@ -14,6 +21,8 @@ body {
 
 #app {
     height: 100%;
+    max-width: 1400px;
+    margin: 0 auto
 }
 
 .layout {
@@ -23,6 +32,7 @@ body {
         width: 61.8%;
         background: white;
         min-height: 100%;
+        box-shadow: 0 0 30px 0 rgba(0,0,0,0.05);
     }
     .sidebar {
         width: 38.2%;
@@ -35,6 +45,34 @@ body {
     }
 }
 
+/**
+ * For modern browsers
+ * 1. The space content is one way to avoid an Opera bug when the
+ *    contenteditable attribute is included anywhere else in the document.
+ *    Otherwise it causes space to appear at the top and bottom of elements
+ *    that are clearfixed.
+ * 2. The use of `table` rather than `block` is only necessary if using
+ *    `:before` to contain the top-margins of child elements.
+ */
+.cf:before,
+.cf:after {
+    content: " "; /* 1 */
+    display: table; /* 2 */
+}
+
+.cf:after {
+    clear: both;
+}
+
+/**
+ * For IE 6/7 only
+ * Include this rule to trigger hasLayout and contain floats.
+ */
+.cf {
+    *zoom: 1;
+}
+
 @import "./codemirror.less";
 @import "./components/editor.less";
 @import "./components/feedback.less";
+@import "./components/comment.less";

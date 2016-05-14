@@ -1,7 +1,9 @@
 (ns writisan.edb
   (:require [keechma.edb :as edb]))
 
-(def dbal (edb/make-dbal {:posts {:id :_id}}))
+(def dbal (edb/make-dbal {:posts {:id :_id}
+                          :post-users {:id :_id}
+                          :comments {:id :_id}}))
 
 (defn wrap-entity-db-get [dbal-fn]
   (fn [db & rest]

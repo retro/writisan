@@ -1,0 +1,99 @@
+.feedback-component {
+    .block {
+        border-top: 1px solid #f0f0f0;
+        &:first-child {
+            padding-top: 25px;
+            border-top: none;
+            .comments-block {
+                border-top: none
+            }
+        }
+        &:last-child {
+            padding-bottom: 25px;
+        }
+        h1, h2, h3, h4, h5, h6, p, code, ul, ol {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+    }
+    .post-block {
+        width: 100%;
+        float: left;
+        padding: 15px 30px 15px 25px;
+        hr:first-child {
+            display: none;
+        }
+    }
+    .comments-block {
+        width: 61.8%;
+        margin-right: -61.8%;
+        margin-top: -1px;
+        float: right;
+        padding: 0 25px;
+        border-top: 1px solid #e6e6e6;
+        .open-comment-form {
+            background: none;
+            font-size: 13px;
+            color: #999;
+            border: none;
+            margin-left: -37px;
+            width: 24px;
+            height: 24px;
+            text-align: center;
+            border-radius: 12px;
+            background: #ccc;
+            margin-top: 10px;
+            line-height: 24px;
+            padding: 0;
+            color: #fff;
+            cursor: pointer;
+            outline: none;
+            &:hover {
+                background: #16a085;
+            }
+        }
+        .open-comment-form--active {
+            background: #16a085;
+        }
+    }
+    .comment-form {
+        color: #999;
+        margin-top: -22px;
+        margin-bottom: 10px;
+        font-size: 12px;
+        .title {
+            margin-bottom: 10px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            font-size: 14px;
+        }
+        button {
+            height: 30px;
+            color: white;
+            border-radius: 3px;
+            background: #1abc9c;
+            border: none;
+            font-size: 14px;
+            line-height: 30px;
+            margin-top: 10px;
+            cursor: pointer;
+            padding: 0 20px;
+            outline: none;
+            float: right;
+        }
+    }
+    .with-comments {
+        .comment-form {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+    }
+    .comments {
+        margin-top: -10px;
+    }
+}

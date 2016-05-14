@@ -8,15 +8,22 @@ exports.before = {
   all: [
     auth.verifyToken(),
     auth.populateUser(),
-    auth.restrictToAuthenticated(),
-    hooks.disable()
+    auth.restrictToAuthenticated()
   ],
-  find: [hooks.disable()],
+  find: [
+    function(req) {
+      if (!req.params.query.postId) {
+        return Promise.reject("You can't access comments without postId");
+      }
+    }
+  ],
   get: [],
-  create: [],
-  update: [hooks.disable()],
-  patch: [hooks.disable()],
-  remove: [hooks.disable()]
+  create: [
+    auth.associateCurrentUser({ as: 'postedById' })
+  ],
+  update: [],
+  patch: [],
+  remove: []
 };
 
 exports.after = {

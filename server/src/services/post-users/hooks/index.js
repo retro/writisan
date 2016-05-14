@@ -8,15 +8,14 @@ exports.before = {
   all: [
     auth.verifyToken(),
     auth.populateUser(),
-    auth.restrictToAuthenticated(),
-    hooks.disable()
+    auth.restrictToAuthenticated()
   ],
-  find: [hooks.disable()],
+  find: [],
   get: [],
   create: [],
-  update: [hooks.disable()],
-  patch: [hooks.disable()],
-  remove: [hooks.disable()]
+  update: [],
+  patch: [],
+  remove: []
 };
 
 exports.after = {

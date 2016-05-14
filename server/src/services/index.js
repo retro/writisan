@@ -1,4 +1,6 @@
 'use strict';
+const postUsers = require('./post-users');
+const comments = require('./comments');
 const bucket = require('./bucket');
 const post = require('./post');
 const authentication = require('./authentication');
@@ -14,4 +16,6 @@ module.exports = function() {
   app.configure(user);
   app.configure(post);
   app.configure(bucket);
+  app.configure(comments);
+  app.configure(postUsers);
 };
