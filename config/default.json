@@ -1,0 +1,19 @@
+{
+  "host": "localhost",
+  "port": 3030,
+  "mongodb": "mongodb://localhost:27017/writisan",
+  "public": "../public/",
+  "auth": {
+    "token": {
+      "secret": "8BnGNpO/shqOEpFTDMLAqi5K48l0TiPxzpMtSicweKm1t03+mSdG6BUIgEK1TnnECkmf2Opv2WGFoE6AUihhPA=="
+    },
+    "local": false,
+    "google": {
+      "clientID": "GOOGLE_CLIENT_ID",
+      "clientSecret": "GOOGLE_CLIENT_SECRET",
+      "permissions": {
+        "scope": ["profile", "email"]
+      }
+    }
+  }
+}
