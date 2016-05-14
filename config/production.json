@@ -8,7 +8,7 @@
       "secret": "FEATHERS_AUTH_SECRET"
     },
     "cookie" : {
-      "secure": false,
+      "secure": false
     },
     "proxy": true,
     "local": false,
