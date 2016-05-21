@@ -5,6 +5,7 @@ const hooks = require('feathers-hooks');
 const auth = require('feathers-authentication').hooks;
 const Remarkable = require('remarkable');
 const PostModel = require('../post-model.js');
+const postmark = require('postmark');
 
 const SPLITTER = '------<CUT-HERE>------';
 
@@ -15,13 +16,8 @@ const markdownRenderer = function () {
   splitRules.map(rule => {
     let ruleName = rule + '_close';
     let oldRule = md.renderer.rules[ruleName];
-    md.renderer.rules[ruleName] = function () {
-      if (ruleName === 'paragraph_close') {
-        let res = oldRule.apply(this, arguments);
-        return res.length ? res + SPLITTER : res;
-      }
-
-      return oldRule.apply(this, arguments) + SPLITTER;
+    md.renderer.rules[ruleName] = function (tokens, idx) {
+      return oldRule.apply(this, arguments) + (tokens[idx].level === 0 ? SPLITTER : "");
     };
   });
 
@@ -51,7 +47,6 @@ exports.before = {
   find: [hooks.disable()],
   get: [associateCurrentUser],
   create: [function (req) {
-    console.log('REQ', arguments);
     req.data._id = require('crypto').randomBytes(32).toString('hex');
     req.data.accessedBy = [req.params.user._id];
     req.data.parts = markdownRenderer.render(req.data.text).split(SPLITTER);
@@ -65,7 +60,33 @@ exports.after = {
   all: [],
   find: [],
   get: [],
-  create: [],
+  create: [function (hook) {
+    return new Promise(function (resolve, reject) {
+      try {
+        let id = hook.result.id;
+        let user = hook.params.user;
+        let client = new postmark.Client(process.env.POSTMARK_TOKEN);
+        let emailData = {
+          "From": "become@writisan.com",
+          "To": user.google.emails[0].value,
+          "Subject": "You have just created a new document on Writisan",
+          "HtmlBody": '<p>' + user.google.displayName + ', you can access your document <a href="https://app.writisan.com/#!comments/' + id + '">here</a></p>'
+        };
+        if (process.env.NODE_ENV === 'production') {
+          client.sendEmail(emailData, function (error, success) {
+            console.log('ERROR SENDING EMAIL', error);
+            resolve(hook);
+          });
+        } else {
+          console.log('SENDING EMAIL', emailData);
+          resolve(hook);
+        }
+      } catch (e) {
+        console.log('ERROR', e);
+        resolve(hook);
+      }
+    });
+  }],
   update: [],
   patch: [],
   remove: []

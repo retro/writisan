@@ -80,6 +80,10 @@
   padding: 10px;
   font-size: 14px;
 }
+.feedback-component .comment-form textarea[readonly] {
+  background: #f6f6f6;
+  color: #999;
+}
 .feedback-component .comment-form button {
   height: 30px;
   color: white;
@@ -94,6 +98,12 @@
   outline: none;
   float: right;
 }
+.feedback-component .comment-form button[disabled] {
+  opacity: 0.5;
+}
+.feedback-component .comment-form button[disabled] i.fa {
+  margin-right: 10px;
+}
 .feedback-component .with-comments .comment-form {
   border-bottom: 1px solid #ddd;
   padding-bottom: 20px;
@@ -101,4 +111,26 @@
 }
 .feedback-component .comments {
   margin-top: -10px;
+}
+.feedback-component .feedback-loading {
+  text-align: center;
+  font-size: 300%;
+  color: #ccc;
+  padding-top: 20px;
+}
+.feedback-component .toolbar .content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 25px;
+}
+.feedback-component .feedback-content {
+  padding-top: 30px;
+}
+@media only screen and (min-width: 1401px) {
+  .feedback-component .comments-block {
+    padding-right: 0;
+  }
+  .feedback-component .toolbar .content {
+    padding-right: 25px;
+  }
 }

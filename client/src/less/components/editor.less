@@ -4,30 +4,29 @@
         width: 61.8%;
         margin: 0 auto;
     }
-    .toolbar {
+    .saving-article-overlay {
+        background: rgba(0,0,0,0.2);
         position: fixed;
-        height: 50px;
-        width: 100%;
         top: 0;
         left: 0;
-        background: #222;
-        z-index: 1000;
-        color: #999;
-        line-height: 50px;
-        font-size: 18px;
-        button {
-            float: right;
-            height: 30px;
-            color: white;
+        right: 0;
+        bottom: 0;
+        z-index: 10000;
+        div {
+            width: 100px;
+            height: 100px;
+            font-size: 300%;
             border-radius: 3px;
-            background: #1abc9c;
-            border: none;
-            font-size: 14px;
-            line-height: 30px;
-            margin-top: 10px;
-            cursor: pointer;
-            padding: 0 20px;
-            outline: none;
+            background: white;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            line-height: 100px;
+            text-align: center;
+            margin-left: -50px;
+            margin-top: -50px;
+            color: #bbb;
+            box-shadow: 0 0 50px 0 rgba(0,0,0,0.15);
         }
     }
 }

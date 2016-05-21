@@ -4,6 +4,8 @@ const service = require('feathers-mongoose');
 const comments = require('./comments-model');
 const hooks = require('./hooks');
 
+const globalHooks = require('../../hooks');
+
 module.exports = function () {
   const app = this;
 
@@ -23,6 +25,7 @@ module.exports = function () {
 
   // Set up our before hooks
   commentsService.before(hooks.before);
+  //commentsService.before(globalHooks.addDelay(2000));
 
   // Set up our after hooks
   commentsService.after(hooks.after);

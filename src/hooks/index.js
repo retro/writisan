@@ -6,8 +6,10 @@
 // see http://docs.feathersjs.com/hooks/readme.html for more details
 // on hooks.
 
-exports.myHook = function(options) {
-  return function(hook) {
-    console.log('My custom global hook ran. Feathers is awesome!');
+exports.addDelay = function addDelay(delay) {
+  console.log('SETUP DELAY')
+  return function(hook, next) {
+    console.log('CALLING HOOK')
+    setTimeout(next, delay);
   };
 };

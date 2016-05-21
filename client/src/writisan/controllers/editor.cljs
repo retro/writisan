@@ -6,11 +6,15 @@
 
 
 (defn save-article [success-redirect app-db-atom article]
+  (swap! app-db-atom assoc-in [:kv :is-saving-article] true)
   (create-item
    posts-service
    #js{:text article}
    (fn [item]
-     (edb/insert-named-item @app-db-atom :posts :current item)
+     (reset! app-db-atom
+             (-> @app-db-atom
+                 (assoc-in [:kv :is-saving-article] false)
+                 (edb/insert-named-item :posts :current item))) 
      (success-redirect (:_id item)))))
 
 (defrecord Controller []

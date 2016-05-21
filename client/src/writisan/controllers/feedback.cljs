@@ -6,7 +6,7 @@
 (defn load-post [app-db-atom id]
   (get-item posts-service id
             (fn [item]
-              (reset! app-db-atom (edb/insert-named-item @app-db-atom :posts :current item)))))
+              (reset! app-db-atom (edb/insert-named-item @app-db-atom :posts :current item {:is-loading false})))))
 
 (defn open-comment-form [app-db-atom idx]
   (let [current-idx (get-in @app-db-atom [:kv :current-comment-form-idx])
@@ -21,13 +21,14 @@
   (start [this id app-db]
     (let [post (edb/get-item-by-id app-db :posts id)]
       (if post
-        (edb/insert-named-item app-db :posts :current post)
+        (edb/insert-named-item app-db :posts :current post {:is-loading false})
         (do
           (controller/execute this :load-post id)
-          app-db))))
+          (edb/insert-named-item app-db :posts :current {} {:is-loading true})))))
   (handler [this app-db-atom in-chan _]
     (controller/dispatcher app-db-atom in-chan
                            {:load-post load-post
-                            :open-comment-form open-comment-form
-                           })))
+                            :open-comment-form open-comment-form}))
+  (stop [this id app-db]
+    (assoc-in app-db [:kv :current-comment-form-idx] nil)))
 

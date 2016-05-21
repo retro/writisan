@@ -20,12 +20,11 @@
     (let [main-app-sub (ui/subscription ctx :main-app)
           login-status-sub (ui/subscription ctx :login-status)
           main-app @main-app-sub
-          login-status @login-status-sub]
+          login-status (or @login-status-sub :loading)]
       (case login-status
-        :loading [:div]
-        (if main-app
-          (render-main-app main-app)
-          (render-login ctx))))))
+        :loading [:div.loading>i.fa.fa-circle-o-notch.fa-spin]
+        :anon (render-login ctx)
+        :auth (render-main-app main-app)))))
 
 (def component (ui/constructor
                 {:renderer render

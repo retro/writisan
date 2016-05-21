@@ -21,7 +21,7 @@
   (let [app-db @app-db-atom]
     (find-items comments-service
                 #js{:postId current-post-id :$limit 100}
-                #(reset! app-db-atom (edb/insert-collection @app-db-atom :comments :list (:data %))))))
+                #(reset! app-db-atom (edb/insert-collection @app-db-atom :comments :list (:data %) {:is-loading false})))))
 
 (defn listen-created [app-db-atom post-id]
   (.on comments-service "created"
@@ -39,10 +39,12 @@
   (start [this id app-db]
     (controller/execute this :load id)
     (controller/execute this :listen-created id)
-    (edb/insert-collection app-db :comments :list []))
+    (edb/insert-collection app-db :comments :list [] {:is-loading true}))
   (handler [this app-db-atom in-chan _]
     (let []
       (controller/dispatcher app-db-atom in-chan
                              {:create save-comment
                               :listen-created listen-created
-                              :load load-comments}))))
+                              :load load-comments})))
+  (stop [this id app-db]
+    (edb/remove-collection app-db :comments :list)))
