@@ -18,9 +18,9 @@
     <script type="text/javascript">
       var F = feathers()
       //.configure(feathers.rest('http://localhost:3030').jquery(jQuery))
-      .configure(feathers.hooks())
-      .configure(feathers.socketio(io('http://localhost:3030')))
-      .configure(feathers.authentication({ type: 'token', storage: window.localStorage }));
+        .configure(feathers.hooks())
+        .configure(feathers.socketio(io('http://localhost:3030')))
+        .configure(feathers.authentication({ type: 'token', storage: window.localStorage }));
     </script>
     <script src="auth.js"></script>
     <script type="text/javascript" src="http://localhost:3449/js/compiled/out/goog/base.js"></script>

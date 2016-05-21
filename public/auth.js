@@ -16,7 +16,3 @@ var AUTH = function(successCb, errorCb) {
     }, 100);
   }
 }
-
-var setToken = function(token) {
-  localStorage.setItem('feathers-jwt', token);
-}

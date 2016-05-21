@@ -6,18 +6,15 @@
 	</head>
 	<body>
 		<script type="text/javascript">
-      if (window.opener && !window.opener.closed) {
         function getCookie(name) {
           var value = "; " + document.cookie;
-          console.log('COOKIE VALUE', value);
           var parts = value.split("; " + name + "=");
           if (parts.length == 2) return parts.pop().split(";").shift();
         }
-        
+        console.log('FEATHERS COOKIE', getCookie('feathers-jwt'))
         var token = getCookie('feathers-jwt');
-        window.opener.setToken && window.opener.setToken(token);
+        localStorage.setItem('feathers-jwt', token);
 				window.close();
-			}
 		</script>
 
 	</body>

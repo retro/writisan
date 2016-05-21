@@ -20,7 +20,9 @@
   (.then
    (.authenticate js/F)
    (partial start-app! main-app app-db-atom)
-   (fn [] (swap! app-db-atom assoc-in [:kv :login-status] :anon))))
+   (fn [e]
+     (.log js/console e)
+     (swap! app-db-atom assoc-in [:kv :login-status] :anon))))
 
 
 (defrecord ^{:doc "
