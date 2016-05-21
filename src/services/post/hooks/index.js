@@ -97,8 +97,8 @@ exports.after = {
           if (process.env.NODE_ENV === 'production') {
             client.sendEmail(emailData, function(error, success) {
               console.log('ERROR SENDING EMAIL', error);
-              resolve(hook);
             });
+            resolve(hook);
           } else {
             console.log('SENDING EMAIL', emailData);
             resolve(hook);
