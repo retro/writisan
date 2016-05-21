@@ -51,6 +51,7 @@ app.use(compress())
   .use(bodyParser.json())
   .use(bodyParser.urlencoded({ extended: true }))
   .get('/auth/success', function(req, res){
+    console.log(req);
     res.set('Content-Type', 'text/html');
     res.send('<script>localStorage.setItem("feathers-jwt", "' + req.cookies["feathers-jwt"] + '"); window.close(); </script>');
     //res.sendFile(path.resolve(__dirname, '..', 'public', 'close_window.html'));
