@@ -6,6 +6,16 @@ const hooks = require('./hooks');
 
 const globalHooks = require('../../hooks');
 
+const onlyPostUsers = function (data, connection) {
+  let userId = connection.user && connection.user._id;
+
+  if (!userId) {
+    return false;
+  }
+
+  return data.accessedBy.map(uid => "" + uid).indexOf("" + userId) > -1;
+};
+
 module.exports = function () {
   const app = this;
 
@@ -29,4 +39,5 @@ module.exports = function () {
 
   // Set up our after hooks
   postService.after(hooks.after);
+  postService.filter('created', onlyPostUsers);
 };

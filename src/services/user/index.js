@@ -4,6 +4,10 @@ const service = require('feathers-mongoose');
 const user = require('./user-model');
 const hooks = require('./hooks');
 
+const onlySelf = function(data, connection) {
+  return data._id === connection.user._id;
+}
+
 module.exports = function() {
   const app = this;
 
@@ -11,7 +15,7 @@ module.exports = function() {
     Model: user,
     paginate: {
       default: 5,
-      max: 25
+      max: 100
     }
   };
 
@@ -26,4 +30,12 @@ module.exports = function() {
 
   // Set up our after hooks
   userService.after(hooks.after);
+  
+  userService.filter({
+    created: onlySelf,
+    updated: onlySelf,
+    removed: onlySelf,
+    patched: onlySelf
+  });
+  
 };

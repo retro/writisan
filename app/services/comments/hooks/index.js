@@ -11,11 +11,11 @@ exports.before = {
       return Promise.reject("You can't access comments without postId");
     }
   }],
-  get: [],
+  get: [hooks.disable()],
   create: [auth.associateCurrentUser({ as: 'postedById' })],
-  update: [],
-  patch: [],
-  remove: []
+  update: [hooks.disable()],
+  patch: [hooks.disable()],
+  remove: [hooks.disable()]
 };
 
 exports.after = {

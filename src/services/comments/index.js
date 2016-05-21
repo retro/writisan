@@ -3,8 +3,28 @@
 const service = require('feathers-mongoose');
 const comments = require('./comments-model');
 const hooks = require('./hooks');
+const PostModel = require('../post/post-model');
 
 const globalHooks = require('../../hooks');
+
+const filterOnlyPostUsers = function(data, connection, hook) {
+  let userId = connection.user && connection.user._id;
+  
+  if (!userId) {
+    return false;
+  }
+
+  return new Promise((resolve, reject) => {
+    PostModel.findOne({_id: data.postId})
+      .then(function(post) {
+        if (post.accessedBy.map((uid) => "" + uid).indexOf("" + userId) > -1){
+          resolve(data, connection, hook);
+        } else {
+          reject();
+        }
+      }, reject);
+  });
+}
 
 module.exports = function() {
   const app = this;
@@ -13,7 +33,7 @@ module.exports = function() {
     Model: comments,
     paginate: {
       default: 5,
-      max: 25
+      max: Infinity
     }
   };
 
@@ -29,4 +49,8 @@ module.exports = function() {
 
   // Set up our after hooks
   commentsService.after(hooks.after);
+
+  commentsService.filter({
+    created: filterOnlyPostUsers
+  })
 };

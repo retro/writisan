@@ -17,13 +17,13 @@ exports.before = {
       }
     }
   ],
-  get: [],
+  get: [hooks.disable()],
   create: [
     auth.associateCurrentUser({ as: 'postedById' })
   ],
-  update: [],
-  patch: [],
-  remove: []
+  update: [hooks.disable()],
+  patch: [hooks.disable()],
+  remove: [hooks.disable()]
 };
 
 exports.after = {
