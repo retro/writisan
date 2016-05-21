@@ -7,9 +7,6 @@
     "token": {
       "secret": "FEATHERS_AUTH_SECRET"
     },
-    "cookie" : {
-      "secure": false
-    },
     "proxy": true,
     "local": false,
     "google": {
