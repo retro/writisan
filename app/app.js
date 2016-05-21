@@ -22,8 +22,7 @@ const app = feathers();
 
 const Bucket = app.service('/buckets/');
 
-console.log(configuration(path.join(__dirname, '..')));
-
+app.enable("trust proxy", "loopback");
 app.configure(configuration(path.join(__dirname, '..')));
 
 // Set up our own custom redirect route for successful login
