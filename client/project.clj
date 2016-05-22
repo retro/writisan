@@ -46,7 +46,7 @@
                 :compiler {:output-to "resources/public/js/compiled/writisan.js"
                            :main writisan.core
                            :optimizations :advanced
-                           :externs ["exxterns/feathers.js"]
+                           :externs ["externs/feathers.js"]
                            :pretty-print false}}]}
 
   :figwheel {;; :http-server-root "public" ;; default and assumes "resources"
