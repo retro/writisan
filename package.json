@@ -1,27 +1,8 @@
 {
-  "name": "writisan",
-  "description": "",
-  "version": "0.0.0",
-  "homepage": "",
-  "main": "src/",
-  "keywords": [
-    "feathers"
-  ],
-  "license": "MIT",
-  "repository": {},
-  "author": {},
-  "contributors": [],
-  "bugs": {},
-  "engines": {
-    "node": ">= 0.12.0"
-  },
-  "scripts": {
-    "test": "npm run jshint && npm run mocha",
-    "jshint": "jshint src/. test/. --config",
-    "start": "babel-node src/",
-    "mocha": "mocha test/ --compilers js:babel-core/register --recursive"
+  "repository": {
   },
   "dependencies": {
+<<<<<<< 948a9dd8e84f084e0f671a82ac81811fc418f717
     "body-parser": "^1.15.1",
     "compression": "^1.6.2",
     "cookie-parser": "^1.4.2",
@@ -51,5 +32,13 @@
     "jshint": "^2.9.2",
     "mocha": "^2.4.5",
     "request": "^2.72.0"
+=======
+    "babel-brunch": "^6.0.0",
+    "brunch": "^2.0.0",
+    "clean-css-brunch": ">= 1.0 < 1.8",
+    "css-brunch": ">= 1.0 < 1.8",
+    "javascript-brunch": ">= 1.0 < 1.8",
+    "uglify-js-brunch": ">= 1.0 < 1.8"
+>>>>>>> Feathers backend is no more.
   }
 }
