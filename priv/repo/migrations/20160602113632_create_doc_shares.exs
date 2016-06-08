@@ -3,8 +3,8 @@ defmodule Writisan.Repo.Migrations.CreateDocShares do
 
   def change do
     create table(:doc_shares) do
-      add :user_id, references(:users, on_delete: :nothing), null: false
-      add :document_id, references(:documents, on_delete: :nothing), null: false
+      add :user_id, references(:users, on_delete: :delete_all), null: false
+      add :document_id, references(:documents, on_delete: :delete_all), null: false
       add :role, :string, default: "reviewer"
 
       timestamps

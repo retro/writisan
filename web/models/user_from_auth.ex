@@ -12,7 +12,7 @@ defmodule Writisan.UserFromAuth do
       {:ok, auth |> insert_user}
     end
   end
-  
+
   defp basic_info(%User{} = user) do
     %{ id: user.id, uid: user.uid, name: user.name, avatar: user.avatar, token: user.token}
   end
@@ -20,7 +20,7 @@ defmodule Writisan.UserFromAuth do
   defp basic_info(%Auth{} = auth) do
     %{ uid: auth.uid, name: name_from_auth(auth), avatar: auth.info.image }
   end
-  
+
   def insert_user(%Auth{} = auth) do
     expires_at =
       auth.credentials.expires_at

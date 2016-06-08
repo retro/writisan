@@ -1,17 +1,16 @@
 defmodule Writisan.User do
   use Writisan.Web, :model
 
-  alias Ecto.DateTime
-  alias Ecto.Date
-  
   schema "users" do
-    has_many :documents, Writisan.Document
+    has_many :documents, Writisan.Document, foreign_key: :author_id
+    has_many :comments, Writisan.Comment, foreign_key: :author_id
 
+    field :uid, :string
+    field :token, :string
     field :name, :string
     field :email, :string
     field :avatar, :string
-    field :uid, :string
-    field :token, :string
+    field :refresh_token, :string
     field :token_expires_at, Ecto.DateTime
 
     timestamps

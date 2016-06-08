@@ -2,19 +2,19 @@ defmodule Writisan.Comment do
   use Writisan.Web, :model
 
   schema "comments" do
+    belongs_to :author, Writisan.User
+    belongs_to :document, Writisan.Document
+
+    field :content, :string
+    field :idx, :integer
+    field :subpath, :map
 
     timestamps
   end
 
-  @required_fields ~w()
-  @optional_fields ~w()
+  @required_fields ~w(author_id document_id content idx)
+  @optional_fields ~w(subpath)
 
-  @doc """
-  Creates a changeset based on the `model` and `params`.
-
-  If no params are provided, an invalid changeset is returned
-  with no validation performed.
-  """
   def changeset(model, params \\ :empty) do
     model
     |> cast(params, @required_fields, @optional_fields)

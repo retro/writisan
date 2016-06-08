@@ -38,11 +38,11 @@ defmodule Writisan.Router do
     end
   end
 
-  scope "/api", API do
+  scope "/api", Writisan.API do
     pipe_through [:api, :api_session]
 
     scope "/v1", V1, as: :v1 do
-      resources "/documents", DocumentController
+      resources "/documents", DocumentController, except: [:update]
       resources "/comments", CommentController
     end
   end
