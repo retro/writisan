@@ -15,3 +15,6 @@ config :writisan, Writisan.Repo,
 
 config :logger, level: :info
 
+config :ueberauth, Ueberauth.Strategy.Google.OAuth,
+  client_id: System.get_env("GOOGLE_OAUTH_CLIENT_ID"),
+  client_secret: System.get_env("GOOGLE_OAUTH_CLIENT_SECRET")
