@@ -12,25 +12,10 @@ defmodule Writisan.API.V1.CommentView do
 
   def render("comment.json", %{comment: comment}) do
     %{
-      id: comment.id,
+      uid: comment.uid,
       idx: comment.idx,
       content: comment.content,
-      subpath: comment.subpath,
-      document: comment_doc(comment.document)
+      subpath: comment.subpath
     }
-  end
-
-  defp comment_doc(%Document{} = doc) do
-    %{
-      id: doc.id,
-      hash: doc.hash,
-      content: doc.content,
-      parts: doc.parts,
-      author_id: doc.author_id
-    }
-  end
-
-  defp comment_doc(_) do
-    nil
   end
 end

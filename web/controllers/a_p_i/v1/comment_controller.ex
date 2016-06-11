@@ -6,14 +6,28 @@ defmodule Writisan.API.V1.CommentController do
   alias Writisan.Endpoint
   alias Writisan.Comment
   alias Writisan.Document
+  alias Writisan.Share
   import Ecto.Query
 
   plug :scrub_params, "comment" when action in [:create, :update]
 
   def index(conn, %{"document_hash" => hash}, user, claims) do
     comments = Comment
-    |> join(:inner, [c], d in Document, c.document_id == d.id)
-    |> where([c, d], d.hash == ^hash)
+    |> join(:inner, [c], d in assoc(c, :document))
+    |> join(:left, [c, d], s in assoc(d, :shares))
+    |> where([c, d, s], d.hash == ^hash)
+    |> where([c, d, s], d.author_id == ^user.id or s.user_id == ^user.id)
+    |> distinct(true)
+    |> Repo.all
+
+    render(conn, "index.json", comments: comments)
+  end
+
+  def index(conn, user, claims) do
+    comments = Comment
+    |> join(:inner, [c], d in assoc(c, :document))
+    |> join(:left, [c, d], s in assoc(d, :share))
+    |> where([c, d, s], s.user_id == ^user.id)
     |> Repo.all
 
     render(conn, "index.json", comments: comments)
@@ -26,21 +40,17 @@ defmodule Writisan.API.V1.CommentController do
     render(conn, "index.json", comments: comments)
   end
 
-
-  def show(conn, %{"id" => id}, user, claims) do
-    comment = Repo.get!(Comment, id) |> Repo.preload(:document)
-    render(conn, "show.json", comment: comment)
-  end
-
   def create(conn, %{"comment" => comment_params}, user, claims) do
-    data = Map.merge(comment_params, %{ "author_id" => user.id })
+    data = Map.merge(comment_params, %{
+      "document_id" => determine_document_id(comment_params),
+      "uid" => UUID.uuid1,
+      "author_id" => user.id
+    })
 
     changeset = Comment.changeset(%Comment{}, data)
 
     case Repo.insert(changeset) do
       {:ok, comment} ->
-        comment = comment |> Repo.preload(:document)
-
         data = CommentView.render("show.json", %{comment: comment})
         Endpoint.broadcast! "data:comments", "new_comment", data
 
@@ -63,4 +73,13 @@ defmodule Writisan.API.V1.CommentController do
 
     send_resp(conn, :no_content, "")
   end
+
+  def determine_document_id(%{"document_hash" => doc_hash} = params) do
+    case Repo.get_by(Document, hash: doc_hash) do
+      nil -> nil
+      %{id: id, hash: hash} -> id
+    end
+  end
+
+  def determine_document_id(params), do: -1
 end

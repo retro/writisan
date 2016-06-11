@@ -52,7 +52,7 @@ defmodule Writisan.Mixfile do
       {:ueberauth, "~> 0.2"},
       {:ueberauth_google, "~> 0.2"},
       {:fnv, "~> 0.3.2"},
-      {:fnv, "~> 0.3.2"},
+      {:uuid, "~> 1.1"},
       {:earmark, github: "neektza/earmark", branch: "writisan_hack"}
     ]
   end

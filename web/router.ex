@@ -46,7 +46,8 @@ defmodule Writisan.Router do
     pipe_through [:api, :api_session]
 
     scope "/v1", V1, as: :v1 do
-      resources "/documents", DocumentController, except: [:update]
+      get "/documents/:hash", DocumentController, :show
+      resources "/documents", DocumentController, except: [:show, :update]
       resources "/comments", CommentController
     end
   end

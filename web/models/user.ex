@@ -4,6 +4,8 @@ defmodule Writisan.User do
   schema "users" do
     has_many :documents, Writisan.Document, foreign_key: :author_id
     has_many :comments, Writisan.Comment, foreign_key: :author_id
+    has_many :shares, Writisan.Share
+    has_many :reviews, through: [:shares, :document]
 
     field :uid, :string
     field :token, :string
@@ -23,8 +25,8 @@ defmodule Writisan.User do
     model
     |> cast(params, @required_fields, @optional_fields)
     |> validate_format(:email, ~r/@/)
-    |> validate_length(:email, min: 1, max: 100)
-    |> validate_length(:name, min: 1, max: 50)
+    |> validate_length(:email, min: 1, max: 255)
+    |> validate_length(:name, min: 1, max: 255)
     |> unique_constraint(:uid)
   end
 end
