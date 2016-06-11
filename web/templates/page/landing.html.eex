@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Writsan LANDING</title>
+    <link rel="stylesheet" href="<%= static_path(@conn, "/css/landing.css") %>">
+  </head>
+
+  <body class="landing">
+    <div class="container-fluid">
+
+      <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
+      <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
+
+      <main role="main">
+        <div class="jumbotron">
+          <h2><%= gettext "Welcome to %{name}", name: "Writisan" %></h2>
+          <p class="lead">A productive web framework that<br />does not compromise speed and maintainability.</p>
+        </div>
+
+        <a class="btn btn-primary btn-lg" href="/auth/google"><i class="fa fa-google"></i>Sign in with Google</a>
+        <%= link "Logout", to: auth_path(@conn, :delete), method: :delete, class: "btn btn-danger" %>
+      </main>
+
+    </div>
+    <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
+  </body>
+</html>
