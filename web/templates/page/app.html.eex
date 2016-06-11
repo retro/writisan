@@ -16,5 +16,6 @@
 
     <div id="app">APP GOES HERE</div>
     <script>TOKEN="<%= @token %>";</script>
+    <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
   </body>
 </html>

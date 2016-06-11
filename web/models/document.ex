@@ -7,8 +7,8 @@ defmodule Writisan.Document do
     belongs_to :prev_version, Writisan.Document
     has_one :next_version, Writisan.Document, foreign_key: :prev_version_id
     has_many :comments, Writisan.Comment
-    has_many :doc_shares, Writisan.DocShare
-    has_many :reviewers, through: [:doc_shares, :user]
+    has_many :shares, Writisan.Share
+    has_many :reviewers, through: [:shares, :user]
 
     field :hash, :string
     field :content, :string

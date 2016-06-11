@@ -1,4 +1,4 @@
-defmodule Writisan.Repo.Migrations.CreateBuckets do
+defmodule Writisan.Repo.Migrations.CreateBucket do
   use Ecto.Migration
 
   def change do

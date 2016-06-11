@@ -1,4 +1,4 @@
-defmodule Writisan.Repo.Migrations.CreateUsers do
+defmodule Writisan.Repo.Migrations.CreateUser do
   use Ecto.Migration
 
   def change do

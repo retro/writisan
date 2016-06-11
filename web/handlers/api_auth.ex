@@ -1,4 +1,4 @@
-defmodule Writisan.GuardianHandlers do
+defmodule Writisan.Handlers.ApiAuth do
   def unauthenticated(conn, _params) do
     conn
     |> Plug.Conn.put_status(401)

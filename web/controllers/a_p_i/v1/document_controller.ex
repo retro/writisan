@@ -2,6 +2,8 @@ defmodule Writisan.API.V1.DocumentController do
   use Writisan.Web, :controller
   use Guardian.Phoenix.Controller
 
+  alias Writisan.API.V1.DocumentView
+  alias Writisan.Endpoint
   alias Writisan.Document
   alias Writisan.Bucket
   import Ecto.Query
@@ -28,14 +30,18 @@ defmodule Writisan.API.V1.DocumentController do
     data = Map.merge(document_params, %{
       "author_id" => user.id,
       "bucket_id" => determine_bucket_id(document_params),
-      "parts" => to_parts(document_params),
-      "hash" => hash_from_content(document_params)
+      "parts" => content_to_parts(document_params),
+      "hash" => content_to_hash(document_params)
     })
 
     changeset = Document.changeset(%Document{}, data)
 
     case Repo.insert(changeset) do
       {:ok, document} ->
+
+        data = DocumentView.render("show.json", %{document: document})
+        Endpoint.broadcast! "data:documents", "new_document", data
+
         conn
         |> put_status(:created)
         |> render("show.json", document: document)
@@ -52,7 +58,7 @@ defmodule Writisan.API.V1.DocumentController do
     send_resp(conn, :no_content, "")
   end
 
-  def to_parts(%{"content" => content} = doc_params) do
+  def content_to_parts(%{"content" => content} = doc_params) do
     Earmark.to_html(content)
     |> String.split("__________CUTHERE__________")
   end

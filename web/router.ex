@@ -9,12 +9,6 @@ defmodule Writisan.Router do
     plug :put_secure_browser_headers
   end
 
-  pipeline :browser_session do
-    plug Guardian.Plug.VerifySession
-    plug Guardian.Plug.EnsureAuthenticated
-    plug Guardian.Plug.LoadResource
-  end
-
   pipeline :api do
     plug :put_headers, %{
       "Accept" => "application/json",
@@ -22,15 +16,25 @@ defmodule Writisan.Router do
     }
   end
 
+  pipeline :browser_session do
+    plug Guardian.Plug.VerifySession
+    plug Guardian.Plug.EnsureAuthenticated,
+      handler: Writisan.Handlers.BrowserAuth
+    plug Guardian.Plug.LoadResource
+  end
+
   pipeline :api_session do
     plug Guardian.Plug.VerifyHeader
-    plug Guardian.Plug.EnsureAuthenticated, handler: Writisan.GuardianHandlers
+    plug Guardian.Plug.EnsureAuthenticated,
+      handler: Writisan.Handlers.ApiAuth
     plug Guardian.Plug.LoadResource
   end
 
   scope "/", Writisan do
     pipe_through :browser
+
     get "/", PageController, :landing
+    get "/shares/:hash", PageController, :share
 
     scope "/app" do
       pipe_through [:browser, :browser_session]
