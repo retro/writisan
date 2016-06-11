@@ -58,7 +58,7 @@ defmodule Writisan.API.V1.DocumentController do
   end
 
   def hash_from_content(%{"content" => content} = doc_params) do
-    FNV.FNV1a.hex128(content)
+    FNV.FNV1a.hex256(content)
   end
 
   def determine_bucket_id(%{"bucket_id" => bucket_id} = doc_params) do

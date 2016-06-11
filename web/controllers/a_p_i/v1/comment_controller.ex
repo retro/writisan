@@ -3,8 +3,19 @@ defmodule Writisan.API.V1.CommentController do
   use Guardian.Phoenix.Controller
 
   alias Writisan.Comment
+  alias Writisan.Document
+  import Ecto.Query
 
   plug :scrub_params, "comment" when action in [:create, :update]
+
+  def index(conn, %{"document_hash" => hash}, user, claims) do
+    comments = Comment
+    |> join(:inner, [c], d in Document, c.document_id == d.id)
+    |> where([c, d], d.hash == ^hash)
+    |> Repo.all
+
+    render(conn, "index.json", comments: comments)
+  end
 
   def index(conn, _params, user, claims) do
     user = Repo.preload(user, :comments)
@@ -12,6 +23,7 @@ defmodule Writisan.API.V1.CommentController do
 
     render(conn, "index.json", comments: comments)
   end
+
 
   def show(conn, %{"id" => id}, user, claims) do
     comment = Repo.get!(Comment, id)
