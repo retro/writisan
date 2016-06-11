@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Usage:
+#     diff FILE1 FILE2
+
+set -eu
+
+Here=$(dirname "$0")
+PATH="$Here:$PATH" # add this directory to PATH for markdown-format-wdiff
+
+# and embed the overall word diff
+git diff --no-index --word-diff --minimal --patience -- $@ |
+sed '
+1,5d
+s|\[-|<del>|g; s|-]|</del>|g
+s|{+|<ins>|g; s|+}|</ins>|g
+'
