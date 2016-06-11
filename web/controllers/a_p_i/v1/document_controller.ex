@@ -63,7 +63,7 @@ defmodule Writisan.API.V1.DocumentController do
     |> String.split("__________CUTHERE__________")
   end
 
-  def hash_from_content(%{"content" => content} = doc_params) do
+  def content_to_hash(%{"content" => content} = doc_params) do
     FNV.FNV1a.hex256(content)
   end
 
