@@ -1,4 +1,4 @@
-defmodule Writisan.Repo.Migrations.CreateDocuments do
+defmodule Writisan.Repo.Migrations.CreateDocument do
   use Ecto.Migration
 
   def change do

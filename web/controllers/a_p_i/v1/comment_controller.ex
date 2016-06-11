@@ -2,6 +2,8 @@ defmodule Writisan.API.V1.CommentController do
   use Writisan.Web, :controller
   use Guardian.Phoenix.Controller
 
+  alias Writisan.API.V1.CommentView
+  alias Writisan.Endpoint
   alias Writisan.Comment
   alias Writisan.Document
   import Ecto.Query
@@ -26,22 +28,22 @@ defmodule Writisan.API.V1.CommentController do
 
 
   def show(conn, %{"id" => id}, user, claims) do
-    comment = Repo.get!(Comment, id)
-    |> Repo.preload(:document)
-
+    comment = Repo.get!(Comment, id) |> Repo.preload(:document)
     render(conn, "show.json", comment: comment)
   end
 
   def create(conn, %{"comment" => comment_params}, user, claims) do
-    data = Map.merge(comment_params, %{
-      "author_id" => user.id
-    })
+    data = Map.merge(comment_params, %{ "author_id" => user.id })
 
     changeset = Comment.changeset(%Comment{}, data)
 
     case Repo.insert(changeset) do
       {:ok, comment} ->
         comment = comment |> Repo.preload(:document)
+
+        data = CommentView.render("show.json", %{comment: comment})
+        Endpoint.broadcast! "data:comments", "new_comment", data
+
         conn
         |> put_status(:created)
         |> render("show.json", comment: comment)

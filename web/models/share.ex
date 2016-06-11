@@ -1,7 +1,7 @@
-defmodule Writisan.DocShare do
+defmodule Writisan.Share do
   use Writisan.Web, :model
 
-  schema "doc_shares" do
+  schema "shares" do
     belongs_to :user, Writisan.User
     belongs_to :document, Writisan.Document
     field :role, :string
@@ -15,5 +15,8 @@ defmodule Writisan.DocShare do
   def changeset(model, params \\ :empty) do
     model
     |> cast(params, @required_fields, @optional_fields)
+    |> unique_constraint(:document_id,
+      name: "shares_user_id_document_id_index",
+      message: "document already shared")
   end
 end

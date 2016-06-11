@@ -1,8 +1,8 @@
-defmodule Writisan.Repo.Migrations.CreateDocShares do
+defmodule Writisan.Repo.Migrations.CreateShare do
   use Ecto.Migration
 
   def change do
-    create table(:doc_shares) do
+    create table(:shares) do
       add :user_id, references(:users, on_delete: :delete_all), null: false
       add :document_id, references(:documents, on_delete: :delete_all), null: false
       add :role, :string, default: "reviewer"
@@ -10,6 +10,6 @@ defmodule Writisan.Repo.Migrations.CreateDocShares do
       timestamps
     end
 
-    create index(:doc_shares, [:user_id, :document_id])
+    create unique_index(:shares, [:user_id, :document_id])
   end
 end
