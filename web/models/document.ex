@@ -12,13 +12,14 @@ defmodule Writisan.Document do
 
     field :hash, :string
     field :content, :string
+    field :diff, :string
     field :parts, {:array, :string}
 
     timestamps
   end
 
   @required_fields ~w(author_id bucket_id hash content parts)
-  @optional_fields ~w(prev_version_id)
+  @optional_fields ~w(prev_version_id diff)
 
   def changeset(model, params \\ :empty) do
     model

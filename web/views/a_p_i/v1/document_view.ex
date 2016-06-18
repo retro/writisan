@@ -14,6 +14,7 @@ defmodule Writisan.API.V1.DocumentView do
     %{
       hash: document.hash,
       parts: document.parts,
+      diff: document.diff,
       content: document.content,
       author_uid: document.author && document.author.uid,
       prev_version_hash: document.prev_version && document.prev_version.hash,

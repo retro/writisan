@@ -7,6 +7,7 @@ defmodule Writisan.API.V1.DocumentController do
   alias Writisan.Document
   alias Writisan.User
   alias Writisan.Bucket
+  alias Writisan.Diff
   import Ecto.Query
 
   plug :scrub_params, "document" when action in [:create, :update]
@@ -38,10 +39,10 @@ defmodule Writisan.API.V1.DocumentController do
     data = Map.merge(document_params, %{
       "author_id" => user.id,
       "bucket_id" => determine_bucket_id(document_params),
-      "prev_version_id" => determine_prev_version_id(document_params),
       "parts" => content_to_parts(document_params),
       "hash" => content_to_hash(document_params)
     })
+    |> diff_if_possible
 
     changeset = Document.changeset(%Document{}, data)
 
@@ -69,24 +70,35 @@ defmodule Writisan.API.V1.DocumentController do
   end
 
   def content_to_parts(%{"content" => content} = doc_params) do
-    Earmark.to_html(content)
-    |> String.split("__________CUTHERE__________")
+    splittem(content)
   end
 
   def content_to_hash(%{"content" => content} = doc_params) do
     FNV.FNV1a.hex256(content)
   end
 
-  def determine_prev_version_id(%{"prev_version_hash" => prev_version_hash} = doc_params) do
-    case Repo.get_by(Document, hash: prev_version_hash) do
-      nil -> nil
-      %{id: id, hash: hash} -> id
-    end
-  end
-  def determine_prev_version_id(doc_params), do: nil
-
   def determine_bucket_id(%{"bucket_id" => bucket_id} = doc_params), do: bucket_id
   def determine_bucket_id(doc_params) do
     Repo.insert!(Bucket.changeset(%Bucket{}, %{})).id
+  end
+
+  def diff_if_possible(%{"prev_version_hash" => prev_doc_hash, "content" => new_content} = document_params) do
+    case Repo.get_by(Document, hash: prev_doc_hash) do
+      nil ->
+        document_params
+      %{id: id, content: old_content}->
+        document_params
+        |> Map.merge(%{
+          "diff" => Diff.diff(old_content, new_content),
+          "prev_version_id" => id
+        })
+    end
+  end
+  def diff_if_possible(document_params), do: document_params
+
+  defp splittem(content) do
+    Earmark.to_html(content)
+    |> String.split("__________CUTHERE__________")
+    |> Enum.map(&(String.rstrip(&1)))
   end
 end
