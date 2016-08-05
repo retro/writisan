@@ -4,7 +4,7 @@ defmodule Writisan.Mixfile do
   def project do
     [app: :writisan,
       version: "0.0.1",
-      elixir: "~> 1.0",
+      elixir: "~> 1.3",
       elixirc_paths: elixirc_paths(Mix.env),
       compilers: [:phoenix, :gettext] ++ Mix.compilers,
       build_embedded: Mix.env == :prod,
@@ -42,7 +42,7 @@ defmodule Writisan.Mixfile do
   defp deps do
     [
       {:phoenix, "~> 1.1.1"},
-      {:phoenix_ecto, "~> 2.0"},
+      {:phoenix_ecto, "~> 3.0"},
       {:postgrex, ">= 0.0.0"},
       {:phoenix_html, "~> 2.3"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
