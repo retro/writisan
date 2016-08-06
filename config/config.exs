@@ -14,6 +14,8 @@ config :writisan, Writisan.Endpoint,
   pubsub: [name: Writisan.PubSub,
            adapter: Phoenix.PubSub.PG2]
 
+config :writisan, ecto_repos: [Writisan.Repo]
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
