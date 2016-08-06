@@ -13,7 +13,5 @@ defmodule Writisan.Repo.Migrations.CreateDocument do
 
       timestamps
     end
-
-    create unique_index(:documents, [:hash])
   end
 end
