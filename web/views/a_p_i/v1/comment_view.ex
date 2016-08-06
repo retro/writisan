@@ -15,7 +15,16 @@ defmodule Writisan.API.V1.CommentView do
       uid: comment.uid,
       idx: comment.idx,
       content: comment.content,
-      subpath: comment.subpath
+      subpath: comment.subpath,
+      author: author(comment)
+    }
+  end
+
+  defp author(comment) do
+    %{
+      uid: comment.author.uid,
+      name: comment.author.name,
+      email: comment.author.email
     }
   end
 end

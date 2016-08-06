@@ -14,9 +14,11 @@ defmodule Writisan.API.V1.CommentController do
   def index(conn, %{"document_hash" => hash}, user, claims) do
     comments = Comment
     |> join(:inner, [c], d in assoc(c, :document))
-    |> join(:left, [c, d], s in assoc(d, :shares))
-    |> where([c, d, s], d.hash == ^hash)
-    |> where([c, d, s], d.author_id == ^user.id or s.user_id == ^user.id)
+    |> join(:inner, [c, d], a in assoc(c, :author))
+    |> join(:left, [c, d, a], s in assoc(d, :shares))
+    |> where([c, d, a, s], d.hash == ^hash)
+    |> where([c, d, a, s], d.author_id == ^user.id or s.user_id == ^user.id)
+    |> preload([c, d, a, s], [comment: :author])
     |> distinct(true)
     |> Repo.all
 
@@ -26,16 +28,21 @@ defmodule Writisan.API.V1.CommentController do
   def index(conn, user, claims) do
     comments = Comment
     |> join(:inner, [c], d in assoc(c, :document))
-    |> join(:left, [c, d], s in assoc(d, :share))
-    |> where([c, d, s], s.user_id == ^user.id)
+    |> join(:inner, [c, d], a in assoc(c, :author))
+    |> join(:left, [c, d, a], s in assoc(d, :share))
+    |> where([c, d, a, s], s.user_id == ^user.id)
     |> Repo.all
 
     render(conn, "index.json", comments: comments)
   end
 
   def index(conn, _params, user, claims) do
-    user = Repo.preload(user, :comments)
-    comments = Repo.preload(user.comments, :document)
+    comments =
+      Comment
+      |> join(:inner, [c], a in assoc(c, :author))
+      |> where([c, a], c.author_id == ^user.id)
+      |> preload([c, a], :author)
+      |> Repo.all
 
     render(conn, "index.json", comments: comments)
   end
@@ -51,6 +58,7 @@ defmodule Writisan.API.V1.CommentController do
 
     case Repo.insert(changeset) do
       {:ok, comment} ->
+        comment = Repo.preload(comment, :author)
         data = CommentView.render("show.json", %{comment: comment})
         Endpoint.broadcast! "data:comments", "new_comment", data
 
