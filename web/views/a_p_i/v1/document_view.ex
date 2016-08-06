@@ -16,9 +16,19 @@ defmodule Writisan.API.V1.DocumentView do
       parts: document.parts,
       diff: document.diff,
       content: document.content,
-      author_uid: document.author && document.author.uid,
+      author: author(document),
       prev_version_hash: document.prev_version && document.prev_version.hash,
       next_version_hash: document.next_version && document.next_version.hash
     }
+  end
+
+  def author(document) do
+    if document.author do
+      %{
+        uid: document.author.uid,
+        name: document.author.name,
+        email: document.author.email
+      }
+    end
   end
 end
