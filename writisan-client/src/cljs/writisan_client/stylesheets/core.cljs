@@ -6,8 +6,7 @@
             [garden.core :as garden]
             [garden.units :refer [em]]
             [writisan-client.stylesheets.colors :refer [colors-with-variations]]
-            [writisan-client.components.layout :as layout]
-            [writisan-client.components.editor :as editor]))
+            [writisan-client.components.layout :as layout]))
 
 
 
@@ -17,8 +16,10 @@
 (def system-font-stack-monospace
   "'Menlo', 'Monaco', 'Consolas', 'Lucida Console', 'Lucida Sans Typewriter', 'Andale Mono', 'Courier New', monospaced")
 
+(defonce component-styles (atom []))
+
 (defn register-component-styles [styles]
-  (.log js/console "REGISTERING COMPONENT STYLES" styles))
+  (swap! component-styles conj styles))
 
 (swap! vars assoc-in [:typography :bold-font-weight] 700)
 (swap! vars assoc-in [:typography :caps-letter-spacing] (em 0.1))
@@ -42,5 +43,5 @@
    [:.bw2 {:border-width "2px"}]
    [:.pill {:border-radius "999em"}]
    (layout/stylesheet)
-   (editor/stylesheet)])
+   @component-styles])
 

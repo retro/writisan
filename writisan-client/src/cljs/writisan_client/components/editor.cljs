@@ -9,33 +9,45 @@
             [clojure.string :refer [split trim]])
   (:require-macros [writisan-client.util :refer [$$ defelement]]))
 
+(defelement codemirror-wrap
+  :class [:bg-white :px3 :py2])
+
+(defelement button-container
+  :class [:bg-white-d :px2 :py2 :clearfix :border :bd-white :bw2 :container])
+
+(defelement button-wrap
+  :class [:fixed :right-0 :left-0 :z1]
+  :style {:border-top (str "20px solid " (:silver-l colors-with-variations))})
+
+(defelement outer-codemirror-wrap
+  :style {:padding-top "85px"
+          :box-shadow "0 18px 16px -16px rgba(0, 0, 0, 0.1)"})
+
+(defelement save-button
+  :class [:btn :line-height-4 :px3 :h4 :right :bg-belizehole :bg-h-belizehole-d :c-white :border-none :pill]
+  :element :button)
+
+(defelement word-counter-wrap
+  :class [:left :h5 :c-black-l :monospaced]
+  :style {:padding-top "7px"})
+
+(defelement save-notice
+  :class [:center.h5.p2.c-silver-d])
+
 (def md (.markdownit js/window))
 
-(defn word-count [markdown]
+(defn word-count [markdown] 
   (if (empty? (trim markdown))
     {:chars 0 :words 0}
     (let [res (.render md markdown)
-          div (.createElement js/document "div")]
+          div (.createElement js/document "div")] 
       (aset div "innerHTML" res)
       (let [inner-text (.-innerText div)]
         {:chars (count inner-text)
          :words (count (split inner-text " "))}))))
 
-(defelement codemirror-wrap
-  :style {:border-top (str "1px solid " (:silver-l colors-with-variations))} 
-  :class [:z1]
-  :tag :ul)
 
-
-(defn stylesheet []
-  [[:.editor {}]
-   [:.editor--codemirror-wrap {}]
-   [:.editor--button-wrap {:border-top (str "20px solid " (:silver-l colors-with-variations))}]
-   [:.editor--outer-codemirror-wrap {:padding-top "85px"
-                                     :box-shadow "0 18px 16px -16px rgba(0, 0, 0, 0.1)"}]
-   [:.editor--word-count {:padding-top "7px"}]])
-
-(defn mount-codemirror [content c]
+(defn mount-codemirror [content c] 
   (let [dom-node (reagent/dom-node c)
         cm (js/CodeMirror dom-node #js{:value @content
                                        :theme "mirrormark"
@@ -57,24 +69,15 @@
         is-saving-article-sub? (ui/subscription ctx :is-saving-article?)]
     (fn []
       (let [count-info (word-count @content)]
-        ($$
-         [:div.editor
-          [:$button-wrap
-           [:$button-container
-            [:div.left.editor--word-count.h5.c-black-l.monospaced (str (:chars count-info) " characters / " (:words count-info) " words")]
-            [:$save-button {:on-click #(ui/send-command ctx :save-article @content)} "Save"]]]
-          [:$outer-codemirror-wrap
-           [:$codemirror-wrap
-            [codemirror-editor content]]]
-          [:div.center.h5.p2.c-silver-d "After you save the document, you'll be able to share it from the next screen"]]
-
-         {:$button-container [:div.container.bg-white-d.px2.py2.clearfix.border.bd-white.bw2]
-          :$outer-codemirror-wrap [:div.editor--outer-codemirror-wrap]
-          :$codemirror-wrap [:div.bg-white.px3.py2.editor--codemirror-wrap]
-          :$button-wrap [:div.fixed.right-0.left-0.z1.editor--button-wrap]
-          :$save-button [:button.btn.line-height-4.px3.h4.right
-                         :.bg-belizehole.bg-h-belizehole-d.c-white
-                         :.border-none.pill]})))))
+        [:div
+         [button-wrap
+          [button-container
+           [word-counter-wrap (str (:chars count-info) " characters / " (:words count-info) " words")]
+           [save-button {:on-click #(ui/send-command ctx :save-article @content)} "Save"]]]
+         [outer-codemirror-wrap
+          [codemirror-wrap
+           [codemirror-editor content]]]
+         [save-notice "After you save the document, you'll be able to share it from the next screen"]]))))
 
 (def component
   (ui/constructor {:renderer render
