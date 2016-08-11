@@ -1,0 +1,4 @@
+window.USER = {
+  token: "",
+  data: {}
+}

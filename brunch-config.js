@@ -21,7 +21,7 @@ exports.config = {
       // }
     },
     stylesheets: {
-      joinTo: "css/landing.css"
+      joinTo: "css/main.css"
     },
     templates: {
       joinTo: "js/app.js"

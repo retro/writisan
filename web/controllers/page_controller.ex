@@ -19,9 +19,11 @@ defmodule Writisan.PageController do
   def app(conn, params, user, claims) do
     {:ok, jwt, full_claims} = Guardian.encode_and_sign(user, :api)
 
+    user_data = Poison.encode!(%{id: user.id, name: user.name, avatar: user.avatar, email: user.email})
+
     conn
     |> put_layout(false)
-    |> render("app.html", token: jwt)
+    |> render("app.html", token: jwt, user: user_data)
   end
 end
 

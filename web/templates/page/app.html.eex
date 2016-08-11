@@ -6,16 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-
     <title>Writisan APP</title>
+    <link rel="stylesheet" type="text/css" href="<%= static_path(@conn, "/css/main.css") %>">
   </head>
 
-  <body class="app">
-    <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
-    <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
-
-    <div id="app">APP GOES HERE</div>
-    <script>TOKEN="<%= @token %>";</script>
-    <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
+  <body>
+    <div id="app"></div>
+    <script>
+      window.USER = {
+        token: "<%= @token %>",
+        data: <%= raw(@user) %>
+      }
+    </script>
+    <script src="<%= static_path(@conn, "/js/compiled/app.js") %>"></script>
+    <script>writisan_client.core.main();</script>
   </body>
 </html>
