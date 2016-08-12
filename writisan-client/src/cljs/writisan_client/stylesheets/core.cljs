@@ -5,8 +5,7 @@
             [writisan-client.stylesheets.btn :as btn]
             [garden.core :as garden]
             [garden.units :refer [em]]
-            [writisan-client.stylesheets.colors :refer [colors-with-variations]]
-            [writisan-client.components.layout :as layout]))
+            [writisan-client.stylesheets.colors :refer [colors-with-variations]]))
 
 
 
@@ -18,8 +17,9 @@
 
 (defonce component-styles (atom []))
 
-(defn register-component-styles [styles]
-  (swap! component-styles conj styles))
+(defn register-component-styles [class styles]
+  (let [styles (if (not (vector? styles)) [styles] styles)]
+    (swap! component-styles conj (into [class] styles))))
 
 (swap! vars assoc-in [:typography :bold-font-weight] 700)
 (swap! vars assoc-in [:typography :caps-letter-spacing] (em 0.1))
@@ -42,6 +42,5 @@
    [:.cursor-pointer {:cursor 'pointer}]
    [:.bw2 {:border-width "2px"}]
    [:.pill {:border-radius "999em"}]
-   (layout/stylesheet)
    @component-styles])
 
