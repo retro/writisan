@@ -5,8 +5,12 @@
             [writisan-client.stylesheets.btn :as btn]
             [garden.core :as garden]
             [garden.units :refer [em]]
-            [writisan-client.stylesheets.colors :refer [colors-with-variations]]))
+            [writisan-client.stylesheets.colors :refer [colors-with-variations]])
+  (:require-macros [garden.def :refer [defkeyframes]]))
 
+
+(defkeyframes spin
+  [:100% {:transform "rotate(-360deg)"}])
 
 
 (def system-font-stack
@@ -42,5 +46,7 @@
    [:.cursor-pointer {:cursor 'pointer}]
    [:.bw2 {:border-width "2px"}]
    [:.pill {:border-radius "999em"}]
+   spin
+   [:.spin {:animation [[spin "2s" :linear :infinite]]}]
    @component-styles])
 

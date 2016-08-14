@@ -7,7 +7,8 @@
             [writisan-client.stylesheets.colors :refer [colors-with-variations]]
             [cljsjs.markdown-it]
             [clojure.string :refer [split trim]]
-            [writisan-client.stylesheets.core :refer-macros [defelement]]))
+            [writisan-client.stylesheets.core :refer-macros [defelement]]
+            [writisan-client.components.spinner :refer [spinner]]))
 
 (defelement outer-codemirror-wrap
   :style {:padding-top "85px"
@@ -24,8 +25,13 @@
   :style {:border-top (str "20px solid " (:silver-l colors-with-variations))})
 
 (defelement save-button
-  :class [:btn :line-height-4 :px3 :h4 :right :bg-belizehole :bg-h-belizehole-d :c-white :border-none :pill]
-  :element :button)
+  :class [:btn :line-height-4 :px3 :h4 :right :bg-belizehole :bg-h-belizehole-d :c-white :border-none :pill :relative]
+  :tag :button)
+
+(defelement spinner-wrap
+  :class [:absolute]
+  :style {:margin-left "-23px"
+          :margin-top "2px"})
 
 (defelement word-count
   :class [:left :h5 :c-black-l :monospaced]
@@ -66,15 +72,17 @@
     :reagent-render (fn [] [:div])})) 
 
 (defn render [ctx]
-  (let [content (reagent/atom "")
-        is-saving-article-sub? (ui/subscription ctx :is-saving-article?)]
+  (let [content (reagent/atom "")]
     (fn []
-      (let [count-info (word-counter @content)]
+      (let [count-info (word-counter @content)
+            is-saving-document? @(ui/subscription ctx :is-saving-document?)]
         [:div
          [-document-header
           [-document-header-container
            [-word-count (str (:chars count-info) " characters / " (:words count-info) " words")]
-           [-save-button {:on-click #(ui/send-command ctx :save-article @content)} "Save"]]]
+           [-save-button {:on-click #(ui/send-command ctx :save @content)}
+            (when is-saving-document? [-spinner-wrap [spinner 20 "#fff"]])
+            "Save"]]]
          [-outer-codemirror-wrap
           [-codemirror-wrap
            [codemirror-editor content]]]
@@ -82,5 +90,5 @@
 
 (def component
   (ui/constructor {:renderer render
-                   :subscription-deps [:is-saving-article?]
+                   :subscription-deps [:is-saving-document?]
                    :topic :editor}))

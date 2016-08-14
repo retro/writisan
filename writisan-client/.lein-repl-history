@@ -1,0 +1,7 @@
+(ns writisan-client.util.pipeline)
+defpipeline
+(require '[writisan-client.util.pipeline])
+(in-ns 'writisan-client.util.pipeline)
+defpipeline
+(macroexpand '(defpipeline aa [pipeline app-db] (when pipeline (println pipeline))))
+(macroexpand '(defpipeline aa [pipeline app-db] (when pipeline (println pipeline)) (when pipeline (println app-db))))

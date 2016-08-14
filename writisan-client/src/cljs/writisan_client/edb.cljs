@@ -3,5 +3,6 @@
             [entitydb.util])
   (:require-macros [writisan-client.edb :refer [defdbal]]))
 
-(defdbal {:users {}})
+(defdbal {:users {}
+          :documents {:id :hash}})
 

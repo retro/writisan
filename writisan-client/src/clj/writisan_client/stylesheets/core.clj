@@ -11,7 +11,7 @@
   (if (odd? (count args))
     (throw "Args must have even number of elements")
     (let [config (apply hash-map args)
-          element (:element config) 
+          tag (:tag config) 
           el-class (str "." (ns-name->class (ns-name *ns*)) "-" (gensym name))
           el-class-keyword (keyword el-class)
           classes (:class config)
@@ -19,4 +19,4 @@
           el-name (symbol (str "-" name))]
       `(do
          (writisan-client.stylesheets.core/register-component-styles ~el-class-keyword ~styles)
-         (def ~el-name (str (name (or '~element "div")) "." ~el-class "." (str/join "." (map name ~classes))))))))
+         (def ~el-name (str (name (or '~tag "div")) "." ~el-class "." (str/join "." (map name ~classes))))))))

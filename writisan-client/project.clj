@@ -6,6 +6,7 @@
                  [reagent "0.6.0-SNAPSHOT"]
                  [secretary "1.2.3"]
                  [funcool/cuerdas "0.7.0"]
+                 [funcool/promesa "1.4.0"]
                  [cljs-ajax "0.5.3"]
                  [cljsjs/moment "2.10.6-3"]
                  [cljsjs/codemirror "5.11.0-1"]

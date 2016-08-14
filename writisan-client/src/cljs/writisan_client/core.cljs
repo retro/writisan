@@ -9,7 +9,8 @@
    [writisan-client.util :refer [update-page-css]]
    [writisan-client.ui-system :as ui]
    [writisan-client.subscriptions :as subs]
-   [writisan-client.controllers.setup :as c-setup]))
+   [writisan-client.controllers.setup :as c-setup]
+   [writisan-client.controllers.editor :as c-editor]))
 
 (defonce debug?
   ^boolean js/goog.DEBUG)
@@ -22,9 +23,12 @@
 
 (def app-definition
   {:components    ui/system
-   :controllers   {:setup (c-setup/->Controller)}
+   :controllers   {:setup (c-setup/->Controller)
+                   :editor c-editor/editor-controller}
    :subscriptions subs/subscriptions
-   :html-element  (.getElementById js/document "app")})
+   :html-element  (.getElementById js/document "app")
+   :routes [["" {:page "editor"}]
+            ":page/:id"]})
 
 (defonce running-app (clojure.core/atom))
 
