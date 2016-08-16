@@ -1,11 +1,11 @@
-(ns writisan-client.util.pipeline-controller
+(ns writisan-client.util.dispatch-controller
   (:require [keechma.controller :as controller]
             [cljs.core.async :refer [<!]]
             [writisan-client.util.pipeline :refer [run-pipeline]])
   (:require-macros [cljs.core.async.macros :refer [go-loop]]))
 
 
-(defrecord PipelineController [params-fn pipelines]
+(defrecord DispatchController [params-fn pipelines]
   controller/IController
   (params [this route-params]
     ((:params-fn this) route-params))
@@ -19,10 +19,10 @@
     (go-loop []
       (let [[command args] (<! in-chan)]
         (when-let [pipeline (get-in this [:pipelines command])]
-          (run-pipeline this app-db-atom pipeline args))
+          (pipeline this app-db-atom args))
         (when command (recur))))))
 
 
 (defn constructor [params-fn pipelines]
-  (->PipelineController params-fn pipelines))
+  (->DispatchController params-fn pipelines))
 

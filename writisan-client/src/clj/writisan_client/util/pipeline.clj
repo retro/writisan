@@ -1,5 +1,41 @@
-(ns writisan-client.util.pipeline)
+(ns writisan-client.util.pipeline
+  (:require [clojure.set :as set]))
 
-(defmacro p-> [args & steps]
-  (into [] (map (fn [s]
-                  `(fn ~args ~s)) steps)))
+(def error-messages
+  {:maximum "pipeline-> macro expect maximum of two blocks: begin and rescue"
+   :non-allowed "pipeline-> macro allows only begin and rescue blocks as top forms"
+   :begin-missing "pipeline-> macro must have a begin block"
+   :begin-args "pipeline-> begin block must accept two arguments: value and app-db"
+   :rescue-args "pipeline-> rescue block must accept three arguments: error, value and app-db"})
+
+(defn add-begin-forms [acc blocks]
+  (let [begin-args (first blocks)
+        begin-forms (rest blocks)]
+    (if (not (= 2 (count begin-args)))
+      (throw (ex-info (:begin-args error-messages) {}))
+      (assoc acc :begin (into [] (map (fn [f] `(fn ~begin-args ~f)) begin-forms))))))
+
+(defn add-rescue-forms [acc blocks]
+  (if (nil? blocks)
+    acc
+    (let [rescue-args (first blocks)
+          rescue-forms (rest blocks)]
+      (if (not (= 3 (count rescue-args)))
+        (throw (ex-info (:rescue-args error-messages) {}))
+        (assoc acc :rescue (into [] (map (fn [f] `(fn ~rescue-args ~f)) rescue-forms)))))))
+
+(defmacro pipeline-> [& steps]
+  (let [blocks (reduce (fn [acc s]
+                         (assoc acc (keyword (name (first s))) (rest s))) {} steps)
+        block-keys (set (keys blocks))]
+    (cond
+      (< 2 (count block-keys)) (throw (ex-info (:maximum error-messages) {}))
+      (not (empty? (set/difference block-keys #{:begin :rescue}))) (throw (ex-info (:non-allowed error-messages) {}))
+      (not (contains? block-keys :begin)) (throw (ex-info (:begin-missing error-messages) {}))
+      :else `(writisan-client.util.pipeline/make-pipeline
+              ~(-> {}
+                   (add-begin-forms (:begin blocks))
+                   (add-rescue-forms (:rescue blocks)))))))
+
+
+

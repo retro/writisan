@@ -6,9 +6,12 @@
             [reagent.core :as reagent]
             [writisan-client.stylesheets.colors :refer [colors-with-variations]]
             [cljsjs.markdown-it]
-            [clojure.string :refer [split trim]]
+            [clojure.string :as str :refer [split trim]]
             [writisan-client.stylesheets.core :refer-macros [defelement]]
             [writisan-client.components.spinner :refer [spinner]]))
+
+(def css-transition-group
+  (reagent/adapt-react-class js/React.addons.CSSTransitionGroup))
 
 (defelement outer-codemirror-wrap
   :style {:padding-top "85px"
@@ -30,7 +33,7 @@
 
 (defelement spinner-wrap
   :class [:absolute]
-  :style {:margin-left "-23px"
+  :style {:margin-left "-25px"
           :margin-top "2px"})
 
 (defelement word-count
@@ -40,21 +43,48 @@
 (defelement save-notice
   :class [:center.h5.p2.c-silver-d])
 
+(def error-timeout 300)
+(def error-hidden {:opacity 0.01
+                   :overflow-y "hidden"
+                   :max-height 0})
+(def error-shown {:max-height "42px"
+                  :opacity 1
+                  :transition (str "all " error-timeout "ms cubic-bezier(0, 1, 0.5, 1)")})
+
+(defelement error-transition-wrap
+  :style [{:max-height "42px"
+           :height "42px"}
+          [:&.error-enter error-hidden]
+          [:&.error-enter.error-enter-active error-shown]
+          [:&.error-leave error-shown]
+          [:&.error-leave.error-leave-active error-hidden]]
+  :class [:mxn2])
+
+(defelement error-message
+  :class [:.bg-pomegranate.rounded.c-white.px2.py1.relative])
+
+(defelement close-icon
+  :class [:.c-white.cursor-pointer.right-0.bottom-0.top-0.center.h2.absolute]
+  :style [{:opacity "0.5"
+            :width "34px"
+            :padding-top "1px"}
+          [:&:hover {:opacity 1}]])
+
 (def word-counter
   ((fn []
      (let [md (.markdownit js/window)
            div (.createElement js/document "div")]
        (fn [markdown]
-         (if (empty? (trim markdown))
+         (if (empty? (str/trim markdown))
            {:chars 0 :words 0}
            (let [res (.render md markdown)
                  div (.createElement js/document "div")] 
              (aset div "innerHTML" res)
-             (let [inner-text (.-innerText div)]
-               {:chars (count inner-text)
-                :words (count (split inner-text #"\s+"))}))))))))
+             (let [inner-text  (str/replace (str/trim (.-innerText div)) #"\s+" " ")]
+               {:chars (count (str/replace inner-text " " ""))
+                :words (count (str/split inner-text #"\s+"))}))))))))
 
-(defn mount-codemirror [content c] 
+(defn mount-codemirror [clear-error content c]
   (let [dom-node (reagent/dom-node c)
         cm (js/CodeMirror dom-node #js{:value @content
                                        :theme "mirrormark"
@@ -64,18 +94,33 @@
                                        :placeholder "Text goes here..."
                                        :lineWrapping true})]
     (.on cm "change" (fn [cm]
+                       (clear-error)
                        (reset! content (.getValue cm))))))
 
-(defn codemirror-editor [content]
+(defn codemirror-editor [clear-error content]
   (reagent/create-class
-   {:component-did-mount (partial mount-codemirror content) 
-    :reagent-render (fn [] [:div])})) 
+   {:component-did-mount (partial mount-codemirror clear-error content) 
+    :reagent-render (fn [] [:div {:key "codemirror"}])}))
+
+(defn render-error-message [doc clear-error]
+  (let [error (get-in doc [:meta :error])]
+    [css-transition-group {:transition-name "error"
+                           :transition-enter-timeout error-timeout
+                           :transition-leave-timeout error-timeout}
+     (when error
+       [-error-transition-wrap
+        [-error-message {:key "error-msg"}
+         error
+         [-close-icon {:on-click clear-error
+                       :dangerouslySetInnerHTML {:__html "&times;"}}]]])]))
 
 (defn render [ctx]
-  (let [content (reagent/atom "")]
+  (let [content (reagent/atom "")
+        clear-error #(ui/send-command ctx :clear-error)]
     (fn []
       (let [count-info (word-counter @content)
-            is-saving-document? @(ui/subscription ctx :is-saving-document?)]
+            is-saving-document? @(ui/subscription ctx :is-saving-document?)
+            current-document @(ui/subscription ctx :current-document)]
         [:div
          [-document-header
           [-document-header-container
@@ -85,10 +130,12 @@
             "Save"]]]
          [-outer-codemirror-wrap
           [-codemirror-wrap
-           [codemirror-editor content]]]
+           
+           [render-error-message current-document clear-error]
+           [codemirror-editor clear-error content]]]
          [-save-notice "After you save the document, you'll be able to share it from the next screen"]]))))
 
 (def component
   (ui/constructor {:renderer render
-                   :subscription-deps [:is-saving-document?]
+                   :subscription-deps [:is-saving-document? :current-document]
                    :topic :editor}))

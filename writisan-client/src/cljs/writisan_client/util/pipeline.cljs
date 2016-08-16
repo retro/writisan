@@ -5,67 +5,99 @@
             [keechma.controller :as controller])
   (:require-macros [cljs.core.async.macros :refer [go-loop]]))
 
-(defprotocol IPipeline
-  (stop! [pipeline] "Stops the pipeline")
-  (ok? [pipeline] "Is pipeline in the `ok` state")
-  (value [pipeline] "Returns the current value")
-  (send-command! [this command-name] [this command-name args] "Sends the command through the controller")
-  (commit! [this app-state] "Commits app state value")
-  (redirect! [this params] "Redirects to a different URL"))
+(defrecord Error [type message payload cause])
 
-(defrecord Pipeline [action state sideffects ctx args]
-  IPipeline
-  (stop! [this]
-    (assoc this :action :stop))
-  (ok? [this]
-    (= :ok (first (:state this))))
-  (value [this]
-    (last (:state this)))
-  (send-command! [this command-name]
-    (send-command! this command-name nil))
-  (send-command! [this command-name args]
-    (assoc-in this [:sideffects :commands]
-              (conj (or (get-in this [:sideffects :commands]) []) [command-name args])))
-  (commit! [this app-state]
-    (assoc-in this [:sideffects :commit] app-state))
-  (redirect! [this params]
-    (assoc-in this [:sideffects :redirect] params)))
+(defn error! [type payload]
+  (->Error type nil payload nil))
 
-(defn init-pipeline [args]
- (map->Pipeline 
-  {:action :next
-   :state [:ok nil]
-   :sideffects {}
-   :ctx {}
-   :args args}))
+(defprotocol ISideffect
+  (do! [this controller app-db-atom]))
+
+(defrecord CommitSideffect [value]
+  ISideffect
+  (do! [this _ app-db-atom]
+    (reset! app-db-atom (:value this))))
+
+(defrecord SendCommandSideffect [command payload]
+  ISideffect
+  (do! [this controller _]
+    (controller/send-command controller (:command this) (:payload this))))
+
+(defrecord ExecuteSideffect [payload]
+  ISideffect
+  (do! [this controller _]
+    (controller/execute controller (:payload this))))
+
+(defrecord RedirectSideffect [params]
+  ISideffect
+  (do! [this controller _]
+    (controller/redirect controller params)))
+
+(defn commit! [value]
+  (->CommitSideffect value))
+
+(defn execute! [value]
+  (->ExecuteSideffect value))
+
+(defn send-command! [command payload]
+  (->SendCommandSideffect command payload))
+
+(defn redirect! [params]
+  (->RedirectSideffect params))
+
+(defn process-error [err]
+  (cond
+    (instance? Error err) err
+    :else (->Error :default nil err nil)))
+
+(defn action-ret-val [action value error app-db]
+  (try
+    (let [ret-val (if (nil? error) (action value app-db) (action error value app-db))]
+      {:value ret-val
+       :promise? (satisfies? IPromise ret-val)})
+    (catch :default err
+      (cond
+        (or (instance? ExceptionInfo err) (instance? js/Error err)) (throw err)
+        :else  {:value (process-error err)
+                :promise? false}))))
 
 (defn promise->chan [promise]
   (let [promise-chan (chan)]
     (->> promise
-         (p/map (fn [v] (put! promise-chan [:ok v])))
-         (p/error (fn [e] (put! promise-chan [:error e]))))
+         (p/map (fn [v] (put! promise-chan (if (nil? v) ::nil v))))
+         (p/error (fn [e] (put! promise-chan (process-error e)))))
     promise-chan))
 
-(defn run-pipeline [ctrl app-db-atom actions args]
-  (go-loop [a actions
-            p (init-pipeline args)]
-    (let [next (first a)
-          ret-val (or (next p @app-db-atom) p)
-          has-next? (< 1 (count a))
-          was-promise? (satisfies? IPromise ret-val)
-          [status res] (<! (promise->chan (p/promise ret-val)))
-          next-p (if (satisfies? IPipeline res) res (assoc p :state [status res]))
-          commit (get-in next-p [:sideffects :commit])
-          commands (get-in next-p [:sideffects :commands])]
-      (if (and was-promise? commit)
-        (throw "You're trying to commit the app-state from an async function. There is a chance that app-state was modified in the meantime!")
-        (do
-          (when commit
-            (reset! app-db-atom commit))
-          (map (fn [command]
-                 (controller/send-command ctrl (first command) (last command))) commands)
-          (when-let [params (get-in next-p [:sideffects :redirect])]
-            (controller/redirect ctrl params))
-          (when (and has-next? (= (:action next-p) :next))
-            (recur (drop 1 a)
-                   (assoc next-p :sideffects {}))))))))
+(def pipeline-errors
+  {:async-sideffect "Returning sideffects from promises is not permitted. It is possible that application state was modified in the meantime"
+   :rescue-missing "Unable to proceed with the pipeline. Rescue block is missing."
+   :rescue-errors "Unable to proceed with the pipeline. Error was thrown in rescue block"})
+
+(defn run-pipeline [pipeline ctrl app-db-atom value]
+  (let [{:keys [begin rescue]} pipeline]
+    (go-loop [actions begin
+              val value
+              error nil
+              running :begin]
+      (when (pos? (count actions))
+        (let [next (first actions)
+              {:keys [value promise?]} (action-ret-val next val error @app-db-atom)
+              resolved (<! (promise->chan (p/promise value)))
+              resolved-value (if (= ::nil resolved) nil resolved)
+              sideffect? (satisfies? ISideffect resolved-value)
+              error? (instance? Error resolved-value)]
+          (when (and promise? sideffect?)
+            (throw (ex-info (:async-sideffect pipeline-errors) {})))
+          (when sideffect?
+            (do
+              (do! resolved-value ctrl app-db-atom)))
+          (cond
+            (and error? (= running :begin)) (if (pos? (count rescue))
+                                              (recur rescue val resolved-value :rescue)
+                                              (throw (ex-info (:rescue-missing pipeline-errors) resolved-value)))
+            (and error? (= running :rescue)) (throw (ex-info (:rescue-error pipeline-errors) resolved-value))
+            sideffect? (recur (drop 1 actions) val error :begin)
+            :else (recur (drop 1 actions) (if (nil? resolved-value) val resolved-value) error :begin)))))))
+
+(defn make-pipeline [pipeline]
+  (partial run-pipeline pipeline))

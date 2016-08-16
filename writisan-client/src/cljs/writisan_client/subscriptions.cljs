@@ -10,7 +10,7 @@
   (reaction
    (let [db @app-db-atom
          data (edb/get-named-item db :documents :current)
-         meta (edb/get-named-item-meta :documents :current)]
+         meta (edb/get-named-item-meta db :documents :current)]
      {:meta meta
       :data data})))
 

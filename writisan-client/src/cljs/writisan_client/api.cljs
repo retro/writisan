@@ -16,5 +16,6 @@
                          :headers {:Authorization token}} data)))))
 
 (defn save-document [document token]
-  (req->promise POST token "/api/v1/documents"
-                {:params {:document {:content document}}}))
+  (->> (req->promise POST token "/api/v1/documents"
+                     {:params {:document {:content document}}})
+       (p/map :data)))

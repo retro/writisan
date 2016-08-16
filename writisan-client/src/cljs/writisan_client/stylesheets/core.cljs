@@ -47,6 +47,6 @@
    [:.bw2 {:border-width "2px"}]
    [:.pill {:border-radius "999em"}]
    spin
-   [:.spin {:animation [[spin "2s" :linear :infinite]]}]
+   [:.spin {:animation [[spin "1.5s" :linear :infinite]]}]
    @component-styles])
 
