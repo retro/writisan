@@ -23,6 +23,6 @@
       (let [opacities (generate-opacities @current-idx)]
         (js/setTimeout #(reset! current-idx (next-idx @current-idx)) 40)
         (into [:svg.spin {:width (str dim "px") :height (str dim "px") :view-box "0 0 100 100"
-                     :preserve-aspect-ratio "xMidYMid"}]
+                          :preserve-aspect-ratio "xMidYMid"}]
               (concat [[:rect {:x 0 :y 0 :width 100 :height 100 :fill "none"}]]
                       (map (partial render-line opacities color) (range 0 12))))))))

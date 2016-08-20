@@ -10,14 +10,14 @@
 
 (defelement header
   :style {:border-bottom (str "1px solid " (:silver-d colors-with-variations))}
-  :class [:bg-silver.c-black-l.fixed.top-0.left-0.right-0.z1]
+  :class [:bg-silver :c-black-l :fixed :left-0 :right-0 :top-0 :z1]
   :tag :header)
 
 (defelement avatar-img
   :style {:width "36px"
           :margin-top "-9px"
           :margin-bottom "-9px"}
-  :class [:circle.border.bw2.bd-white.right.ml1]
+  :class [:bd-white :border :bw2 :circle :ml1 :right]
   :tag :img)
 
 (defelement logo-img
@@ -26,7 +26,7 @@
   :tag :img)
 
 (defelement user
-  :class [:.right.h5.bg-silver-d.p2])
+  :class [:bg-silver-d :h5 :p2 :right])
 
 (defn user-avatar-url [user]
   (or (:avatar user)

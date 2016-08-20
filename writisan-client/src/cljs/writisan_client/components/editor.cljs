@@ -1,17 +1,34 @@
 (ns writisan-client.components.editor
   (:require [keechma.ui-component :as ui]
-            [cljsjs.codemirror]
-            [cljsjs.codemirror.mode.markdown]
-            [cljsjs.codemirror.addon.display.placeholder]
             [reagent.core :as reagent]
             [writisan-client.stylesheets.colors :refer [colors-with-variations]]
-            [cljsjs.markdown-it]
-            [clojure.string :as str :refer [split trim]]
             [writisan-client.stylesheets.core :refer-macros [defelement]]
-            [writisan-client.components.spinner :refer [spinner]]))
+            [writisan-client.components.spinner :refer [spinner]]
+            [writisan-client.components.codemirror :as codemirror]
+            [writisan-client.util :refer [markdown-word-counter with-inner-html]]))
 
 (def css-transition-group
   (reagent/adapt-react-class js/React.addons.CSSTransitionGroup))
+
+(def error-transition
+  (let [timeout 300
+        height "42px"]
+    {:timeout timeout
+     :height height
+     :hide {:opacity 0.01
+            :overflow-y "hidden"
+            :max-height 0}
+     :show {:max-height height
+            :opacity 1
+            :transition (str "all " timeout "ms cubic-bezier(0, 1, 0.5, 1)")}}))
+
+(defelement error-transition-wrap
+  :style [{:height (:height error-transition)}
+          [:&.error-enter (:hide error-transition)]
+          [:&.error-enter.error-enter-active (:show error-transition)]
+          [:&.error-leave (:show error-transition)]
+          [:&.error-leave.error-leave-active (:hide error-transition)]]
+  :class [:mxn2])
 
 (defelement outer-codemirror-wrap
   :style {:padding-top "85px"
@@ -21,14 +38,15 @@
   :class [:bg-white :px3 :py2])
 
 (defelement document-header-container
-  :class [:bg-white-d :px2 :py2 :clearfix :border :bd-white :bw2 :container])
+  :class [:bd-white :bg-white-d :border :bw2 :clearfix :container :px2 :py2])
 
 (defelement document-header
   :class [:fixed :right-0 :left-0 :z1]
   :style {:border-top (str "20px solid " (:silver-l colors-with-variations))})
 
 (defelement save-button
-  :class [:btn :line-height-4 :px3 :h4 :right :bg-belizehole :bg-h-belizehole-d :c-white :border-none :pill :relative]
+  :class [:bg-belizehole :bg-h-belizehole-d :border-none :btn :c-white :h4 :line-height-4 :pill :px3 :relative :right]
+  :style {:margin-right "-3px"}
   :tag :button)
 
 (defelement spinner-wrap
@@ -37,102 +55,58 @@
           :margin-top "2px"})
 
 (defelement word-count
-  :class [:left :h5 :c-black-l :monospaced]
+  :class [:c-black-l :h5 :left :monospaced]
   :style {:padding-top "7px"})
 
 (defelement save-notice
-  :class [:center.h5.p2.c-silver-d])
-
-(def error-timeout 300)
-(def error-hidden {:opacity 0.01
-                   :overflow-y "hidden"
-                   :max-height 0})
-(def error-shown {:max-height "42px"
-                  :opacity 1
-                  :transition (str "all " error-timeout "ms cubic-bezier(0, 1, 0.5, 1)")})
-
-(defelement error-transition-wrap
-  :style [{:max-height "42px"
-           :height "42px"}
-          [:&.error-enter error-hidden]
-          [:&.error-enter.error-enter-active error-shown]
-          [:&.error-leave error-shown]
-          [:&.error-leave.error-leave-active error-hidden]]
-  :class [:mxn2])
+  :class [:c-silver-d :center :h5 :p2])
 
 (defelement error-message
-  :class [:.bg-pomegranate.rounded.c-white.px2.py1.relative])
+  :class [:bg-pomegranate :c-white :px2 :py1 :relative :rounded])
 
 (defelement close-icon
-  :class [:.c-white.cursor-pointer.right-0.bottom-0.top-0.center.h2.absolute]
-  :style [{:opacity "0.5"
-            :width "34px"
-            :padding-top "1px"}
+  :class [:absolute :bottom-0 :c-white :center :cursor-pointer :h2 :right-0 :top-0]
+  :style [{:opacity "0.3"
+           :width "34px"
+           :padding-top "1px"}
           [:&:hover {:opacity 1}]])
 
-(def word-counter
-  ((fn []
-     (let [md (.markdownit js/window)
-           div (.createElement js/document "div")]
-       (fn [markdown]
-         (if (empty? (str/trim markdown))
-           {:chars 0 :words 0}
-           (let [res (.render md markdown)
-                 div (.createElement js/document "div")] 
-             (aset div "innerHTML" res)
-             (let [inner-text  (str/replace (str/trim (.-innerText div)) #"\s+" " ")]
-               {:chars (count (str/replace inner-text " " ""))
-                :words (count (str/split inner-text #"\s+"))}))))))))
-
-(defn mount-codemirror [clear-error content c]
-  (let [dom-node (reagent/dom-node c)
-        cm (js/CodeMirror dom-node #js{:value @content
-                                       :theme "mirrormark"
-                                       :mode "markdown"
-                                       :autofocus true
-                                       :viewportMargin js/Infinity
-                                       :placeholder "Text goes here..."
-                                       :lineWrapping true})]
-    (.on cm "change" (fn [cm]
-                       (clear-error)
-                       (reset! content (.getValue cm))))))
-
-(defn codemirror-editor [clear-error content]
-  (reagent/create-class
-   {:component-did-mount (partial mount-codemirror clear-error content) 
-    :reagent-render (fn [] [:div {:key "codemirror"}])}))
+(defn render-error-transition [& children]
+  [css-transition-group {:component "div"
+                         :transition-name "error"
+                         :transition-enter-timeout (:timeout error-transition)
+                         :transition-leave-timeout (:timeout error-transition)}
+   children])
 
 (defn render-error-message [doc clear-error]
   (let [error (get-in doc [:meta :error])]
-    [css-transition-group {:transition-name "error"
-                           :transition-enter-timeout error-timeout
-                           :transition-leave-timeout error-timeout}
+    (render-error-transition
      (when error
-       [-error-transition-wrap
-        [-error-message {:key "error-msg"}
-         error
-         [-close-icon {:on-click clear-error
-                       :dangerouslySetInnerHTML {:__html "&times;"}}]]])]))
+       [-error-transition-wrap {:key "error-transition"}
+        [-error-message error
+         [-close-icon (with-inner-html {:on-click clear-error} "&times;")]]]))))
+
+(defn render-count-info [count-info]
+  (str (:chars count-info) " characters &bullet; " (:words count-info) " words"))
 
 (defn render [ctx]
   (let [content (reagent/atom "")
         clear-error #(ui/send-command ctx :clear-error)]
     (fn []
-      (let [count-info (word-counter @content)
+      (let [count-info (markdown-word-counter @content)
             is-saving-document? @(ui/subscription ctx :is-saving-document?)
             current-document @(ui/subscription ctx :current-document)]
         [:div
          [-document-header
           [-document-header-container
-           [-word-count (str (:chars count-info) " characters / " (:words count-info) " words")]
+           [-word-count (with-inner-html (render-count-info count-info))]
            [-save-button {:on-click #(ui/send-command ctx :save @content)}
             (when is-saving-document? [-spinner-wrap [spinner 20 "#fff"]])
             "Save"]]]
          [-outer-codemirror-wrap
           [-codemirror-wrap
-           
            [render-error-message current-document clear-error]
-           [codemirror-editor clear-error content]]]
+           [codemirror/render clear-error content]]]
          [-save-notice "After you save the document, you'll be able to share it from the next screen"]]))))
 
 (def component

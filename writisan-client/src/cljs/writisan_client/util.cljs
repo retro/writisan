@@ -1,11 +1,31 @@
 (ns writisan-client.util
   (:require [garden.core :as garden]
-            [clojure.string :refer [join trim]]
+            [clojure.string :as str]
+            [cljsjs.markdown-it]
             [goog.crypt :refer [byteArrayToHex]])
   (:import goog.crypt.Md5))
 
+(defn with-inner-html
+  ([html] (with-inner-html {} html))
+  ([props html]
+   (assoc props :dangerouslySetInnerHTML {:__html html})))
+
+(def markdown-word-counter
+  ((fn []
+     (let [md (.markdownit js/window)
+           div (.createElement js/document "div")]
+       (fn [markdown]
+         (if (empty? (str/trim markdown))
+           {:chars 0 :words 0}
+           (let [res (.render md markdown)
+                 div (.createElement js/document "div")] 
+             (aset div "innerHTML" res)
+             (let [inner-text  (str/replace (str/trim (.-innerText div)) #"\s+" " ")]
+               {:chars (count (str/replace inner-text " " ""))
+                :words (count (str/split inner-text #"\s+"))}))))))))
+
 (defn class-names [checks]
-  (join " " (filter (complement nil?)
+  (str/join " " (filter (complement nil?)
                     (map (fn [[k v]]
                            (when (if (fn? v) (v) v) (name k))) checks))))
 
@@ -32,5 +52,5 @@
 
 (defn gravatar-url [email]
   (let [md5 (Md5.)]
-    (.update md5 (trim email))
+    (.update md5 (str/trim email))
     (str "//www.gravatar.com/avatar/" (byteArrayToHex (.digest md5)) "?size=200")))

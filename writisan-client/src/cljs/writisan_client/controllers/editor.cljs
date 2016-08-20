@@ -33,6 +33,3 @@
    :clear-error (fn [_ app-db-atom _] (reset! app-db-atom (clear-error @app-db-atom)))})
 
 (def editor-controller (dispatch-controller/constructor editor-page? editor-actions))
-
-
-
